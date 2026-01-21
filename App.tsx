@@ -1,10 +1,9 @@
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { 
   Users, 
   LayoutDashboard, 
   FileText, 
-  Plus, 
   Car, 
   LogOut,
   BarChart3,
@@ -12,7 +11,7 @@ import {
   ShieldCheck,
   Wrench,
   User as UserIcon,
-  Lock
+  ShieldAlert
 } from 'lucide-react';
 import { Driver, RentalModel, DriverStatus, SettlementRecord, Vehicle, User } from './types';
 import Dashboard from './components/Dashboard';
@@ -20,10 +19,17 @@ import DriverManagement from './components/DriverManagement';
 import SettlementSystem from './components/SettlementSystem';
 import VehicleManagement from './components/VehicleManagement';
 import Reports from './components/Reports';
+import Login from './components/Login';
+import UserProfile from './components/UserProfile';
 
 const App: React.FC = () => {
-  const [user, setUser] = useState<User>({ id: '1', name: 'Admin User', role: 'Fleet Manager', isAuthenticated: false });
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'drivers' | 'settlements' | 'vehicles' | 'reports'>('dashboard');
+  // Persistence logic for login session
+  const [user, setUser] = useState<User | null>(() => {
+    const saved = localStorage.getItem('arkflow_session');
+    return saved ? JSON.parse(saved) : null;
+  });
+
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'drivers' | 'settlements' | 'vehicles' | 'reports' | 'profile'>('dashboard');
   
   const [vehicles, setVehicles] = useState<Vehicle[]>([
     { id: 'v1', regNo: 'MH-12-AB-1234', model: 'Maruti Dzire', year: 2022, maintenanceCost: 5000, rentalExpenses: { fastTag: 1200, rtoFines: 0, accident: 0 }, status: 'ACTIVE' },
@@ -61,6 +67,14 @@ const App: React.FC = () => {
     }
   ]);
 
+  useEffect(() => {
+    if (user) {
+      localStorage.setItem('arkflow_session', JSON.stringify(user));
+    } else {
+      localStorage.removeItem('arkflow_session');
+    }
+  }, [user]);
+
   const stats = useMemo(() => {
     return {
       totalDrivers: drivers.length,
@@ -71,30 +85,8 @@ const App: React.FC = () => {
     };
   }, [drivers, settlements, vehicles]);
 
-  if (!user.isAuthenticated) {
-    return (
-      <div className="h-screen w-screen flex items-center justify-center bg-slate-900">
-        <div className="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-md space-y-6 text-center">
-          <div className="bg-amber-500 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto shadow-lg shadow-amber-500/30">
-            <Lock className="text-white w-8 h-8" />
-          </div>
-          <div>
-            <h2 className="text-2xl font-bold text-slate-900">CRMS Portal</h2>
-            <p className="text-slate-500">Log in to manage Ark Shipping Fleet</p>
-          </div>
-          <div className="space-y-4">
-            <input type="email" placeholder="Email" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-500/20" defaultValue="admin@arkshipping.com" />
-            <input type="password" placeholder="Password" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-500/20" defaultValue="********" />
-            <button 
-              onClick={() => setUser({...user, isAuthenticated: true})}
-              className="w-full bg-amber-500 text-slate-900 font-bold py-3 rounded-xl hover:bg-amber-400 transition-all shadow-lg shadow-amber-500/20"
-            >
-              Log In
-            </button>
-          </div>
-        </div>
-      </div>
-    );
+  if (!user || !user.isAuthenticated) {
+    return <Login onLogin={setUser} />;
   }
 
   const renderContent = () => {
@@ -104,6 +96,7 @@ const App: React.FC = () => {
       case 'settlements': return <SettlementSystem drivers={drivers} settlements={settlements} setSettlements={setSettlements} />;
       case 'vehicles': return <VehicleManagement vehicles={vehicles} setVehicles={setVehicles} />;
       case 'reports': return <Reports drivers={drivers} settlements={settlements} vehicles={vehicles} />;
+      case 'profile': return <UserProfile user={user} onUpdate={setUser} />;
       default: return <Dashboard stats={stats} drivers={drivers} settlements={settlements} />;
     }
   };
@@ -127,16 +120,29 @@ const App: React.FC = () => {
         </nav>
 
         <div className="p-4 border-t border-slate-800 mt-auto">
-          <div className="flex items-center gap-3 p-3 mb-2">
-            <div className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center border border-slate-700">
-              <UserIcon size={20} className="text-slate-400" />
+          <button 
+            onClick={() => setActiveTab('profile')}
+            className={`w-full flex items-center gap-3 p-3 mb-2 rounded-xl transition-all ${activeTab === 'profile' ? 'bg-white/10 ring-1 ring-white/20' : 'hover:bg-white/5'}`}
+          >
+            <div className="w-10 h-10 rounded-full bg-amber-500 flex items-center justify-center border border-slate-700 text-slate-900 font-bold">
+              {user.name.charAt(0)}
             </div>
-            <div>
-              <p className="text-xs font-bold">{user.name}</p>
-              <p className="text-[10px] text-slate-500">{user.role}</p>
+            <div className="text-left">
+              <p className="text-xs font-bold text-white truncate max-w-[100px]">{user.name}</p>
+              <div className="flex items-center gap-1">
+                <ShieldAlert size={10} className="text-amber-500" />
+                <p className="text-[10px] text-slate-500 uppercase font-black">{user.role}</p>
+              </div>
             </div>
-          </div>
-          <button onClick={() => setUser({...user, isAuthenticated: false})} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-red-500/10 hover:text-red-400 transition-all">
+          </button>
+          
+          <button 
+            onClick={() => {
+              localStorage.removeItem('arkflow_session');
+              setUser(null);
+            }} 
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-red-500/10 hover:text-red-400 transition-all"
+          >
             <LogOut size={18} />
             <span className="text-sm font-medium">Logout</span>
           </button>
@@ -152,7 +158,7 @@ const App: React.FC = () => {
           <div className="flex items-center gap-4">
              <div className="flex items-center gap-2 px-3 py-1 bg-green-50 rounded-lg border border-green-100">
                <ShieldCheck className="text-green-600" size={14} />
-               <span className="text-[10px] font-bold text-green-700 uppercase tracking-wider">Authorized</span>
+               <span className="text-[10px] font-bold text-green-700 uppercase tracking-wider">Authorized CRMS Session</span>
              </div>
           </div>
         </header>

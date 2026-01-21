@@ -10,6 +10,8 @@ export enum DriverStatus {
   INACTIVE = 'INACTIVE'
 }
 
+export type UserRole = 'ADMIN' | 'FLEET_MANAGER' | 'ACCOUNTANT' | 'SUPPORT';
+
 export interface Vehicle {
   id: string;
   regNo: string;
@@ -54,6 +56,8 @@ export interface SettlementRecord {
 export interface User {
   id: string;
   name: string;
-  role: string;
+  email: string;
+  role: UserRole;
   isAuthenticated: boolean;
+  lastLogin?: string;
 }
