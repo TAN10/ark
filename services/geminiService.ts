@@ -1,12 +1,12 @@
 
 import { GoogleGenAI, Type } from "@google/genai";
 
-// Initialize the API client. 
-// Note: process.env.API_KEY is injected by the environment.
-const getAI = () => new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
+// Initialize the API client strictly following the SDK guidelines.
+// Use process.env.API_KEY directly as per requirements.
+const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 export const analyzeReport = async (csvData: string) => {
-  const ai = getAI();
+  // Use the established global ai instance for generating content.
   const response = await ai.models.generateContent({
     model: 'gemini-3-flash-preview',
     contents: `Analyze this ride-sharing report data and extract key financial metrics (earnings, commissions) per driver. 
@@ -29,15 +29,17 @@ export const analyzeReport = async (csvData: string) => {
     }
   });
   
+  // Directly access the .text property (property, not method) from the response.
   return JSON.parse(response.text || "[]");
 };
 
 export const suggestBillingOptimizations = async (history: any) => {
-  const ai = getAI();
+  // Use the established global ai instance for generating content.
   const response = await ai.models.generateContent({
     model: 'gemini-3-flash-preview',
     contents: `Based on this driver settlement history, provide 3 bullet points on how to optimize fleet efficiency or reduce fines.
     History: ${JSON.stringify(history)}`,
   });
+  // Access the text property of the response object.
   return response.text;
 };
