@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Lock, Mail, Loader2, AlertCircle, Car, ShieldCheck } from 'lucide-react';
+import { Lock, Mail, Loader2, AlertCircle, ShieldCheck, Activity } from 'lucide-react';
 import { User } from '../types';
 
 interface LoginProps {
@@ -18,123 +18,101 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
     setIsLoading(true);
     setError(null);
 
-    // Simulated Secure Authentication
     setTimeout(() => {
       if (email === 'admin@arkshipping.com' && password === 'admin123') {
-        const authUser: User = {
+        onLogin({
           id: 'u-1',
           name: 'Vikram Singh',
           email: 'admin@arkshipping.com',
           role: 'ADMIN',
           isAuthenticated: true,
           lastLogin: new Date().toISOString()
-        };
-        onLogin(authUser);
+        });
       } else {
-        setError('Unauthorized access attempt. Please check credentials.');
+        setError('Verification failed. Invalid operational credentials.');
         setIsLoading(false);
       }
-    }, 1500);
+    }, 1200);
   };
 
   return (
-    <div className="min-h-screen w-full flex overflow-hidden">
-      {/* Brand Side */}
-      <div className="hidden lg:flex flex-col justify-between w-1/2 bg-slate-900 p-12 text-white relative">
-        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1517672651691-24622a91b550?auto=format&fit=crop&q=80')] opacity-10 bg-cover bg-center"></div>
-        <div className="relative z-10">
-          <div className="flex items-center gap-3 mb-12">
-            <div className="bg-amber-500 p-2 rounded-xl">
-              <Car className="text-slate-900 w-8 h-8" />
-            </div>
-            <span className="text-2xl font-black tracking-tighter italic">ARKFLOW</span>
-          </div>
-          <div className="max-w-md">
-            <h1 className="text-5xl font-extrabold leading-tight mb-6">
-              Next-Gen <br/><span className="text-amber-500">Fleet Control</span> Center.
-            </h1>
-            <p className="text-slate-400 text-lg leading-relaxed">
-              Managing OLA/UBER integration, driver settlements, and vehicle master data in one centralized hub.
-            </p>
-          </div>
-        </div>
-        <div className="relative z-10 flex items-center gap-4 text-sm text-slate-500">
-          <ShieldCheck className="text-green-500" size={18} />
-          <span>Enterprise Grade Security Enabled</span>
-        </div>
+    <div className="min-h-screen w-full flex bg-[#0a0c10] items-center justify-center p-6">
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-indigo-600/10 blur-[120px]"></div>
+        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-indigo-900/20 blur-[120px]"></div>
       </div>
 
-      {/* Login Side */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-slate-50">
-        <div className="w-full max-w-md space-y-10">
-          <div className="text-center lg:text-left space-y-2">
-            <h2 className="text-3xl font-bold text-slate-900">CRMS Portal Login</h2>
-            <p className="text-slate-500 font-medium">Please enter your staff credentials to continue.</p>
+      <div className="w-full max-w-lg relative">
+        <div className="bg-slate-900/40 backdrop-blur-2xl border border-white/5 p-12 rounded-[3rem] shadow-2xl space-y-10">
+          <div className="text-center space-y-4">
+            <div className="bg-indigo-600 w-20 h-20 rounded-3xl flex items-center justify-center mx-auto shadow-2xl shadow-indigo-600/30">
+              <Activity className="text-white w-10 h-10" />
+            </div>
+            <div>
+              <h1 className="text-4xl font-black text-white tracking-tighter italic">ARKFLOW <span className="text-indigo-500">v2</span></h1>
+              <p className="text-slate-400 font-medium text-sm mt-2">Fleet Management Operations Center</p>
+            </div>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {error && (
-              <div className="bg-red-50 border border-red-100 p-4 rounded-2xl flex items-center gap-3 text-red-600 text-sm font-semibold animate-pulse">
-                <AlertCircle size={20} />
+              <div className="bg-red-500/10 border border-red-500/20 p-4 rounded-2xl flex items-center gap-3 text-red-400 text-xs font-bold uppercase tracking-wider">
+                <AlertCircle size={18} />
                 {error}
               </div>
             )}
 
             <div className="space-y-2">
-              <label className="text-sm font-bold text-slate-700 ml-1">Email Address</label>
+              <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-2">Secure Access ID</label>
               <div className="relative group">
-                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-amber-500 transition-colors" size={20} />
+                <Mail className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-indigo-500 transition-colors" size={20} />
                 <input 
                   type="email" 
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-white border border-slate-200 rounded-2xl pl-12 pr-4 py-4 text-slate-900 focus:outline-none focus:ring-4 focus:ring-amber-500/10 focus:border-amber-500 transition-all shadow-sm"
-                  placeholder="admin@arkshipping.com"
+                  className="w-full bg-white/5 border border-white/10 rounded-2xl pl-14 pr-6 py-4.5 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:bg-white/10 transition-all font-medium"
+                  placeholder="admin@arkflow.io"
                   required
                 />
               </div>
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-bold text-slate-700 ml-1">Password</label>
+              <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-2">Master Password</label>
               <div className="relative group">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-amber-500 transition-colors" size={20} />
+                <Lock className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-indigo-500 transition-colors" size={20} />
                 <input 
                   type="password" 
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-white border border-slate-200 rounded-2xl pl-12 pr-4 py-4 text-slate-900 focus:outline-none focus:ring-4 focus:ring-amber-500/10 focus:border-amber-500 transition-all shadow-sm"
+                  className="w-full bg-white/5 border border-white/10 rounded-2xl pl-14 pr-6 py-4.5 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:bg-white/10 transition-all font-medium"
                   placeholder="••••••••"
                   required
                 />
               </div>
             </div>
 
-            <div className="flex items-center justify-between">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" className="w-4 h-4 rounded border-slate-300 text-amber-500 focus:ring-amber-500" />
-                <span className="text-sm text-slate-600 font-medium">Remember for 30 days</span>
-              </label>
-              <button type="button" className="text-sm font-bold text-amber-600 hover:text-amber-700">Forgot password?</button>
-            </div>
-
             <button 
               type="submit"
               disabled={isLoading}
-              className="w-full bg-slate-900 hover:bg-slate-800 disabled:bg-slate-300 text-white font-bold py-4 rounded-2xl shadow-xl shadow-slate-900/10 transition-all flex items-center justify-center gap-2"
+              className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:bg-indigo-900/50 text-white font-black py-5 rounded-2xl shadow-2xl shadow-indigo-600/20 transition-all flex items-center justify-center gap-3 text-sm uppercase tracking-[0.1em]"
             >
               {isLoading ? (
                 <>
                   <Loader2 className="animate-spin" size={20} />
-                  Verifying Identity...
+                  Initiating System...
                 </>
-              ) : 'Sign In to Dashboard'}
+              ) : 'Authenticate Access'}
             </button>
           </form>
 
-          <p className="text-center text-slate-500 text-sm font-medium">
-            New staff member? <span className="text-amber-600 font-bold cursor-pointer">Request Access</span>
-          </p>
+          <div className="pt-8 border-t border-white/5 flex items-center justify-center gap-6 text-[10px] font-bold text-slate-600 uppercase tracking-widest">
+            <span className="flex items-center gap-2">
+              <ShieldCheck size={12} className="text-green-500" /> AES-256 Validated
+            </span>
+            <span className="w-1 h-1 bg-slate-800 rounded-full"></span>
+            <span>Support: ops@arkflow.io</span>
+          </div>
         </div>
       </div>
     </div>
