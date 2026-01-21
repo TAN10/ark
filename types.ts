@@ -10,11 +10,27 @@ export enum DriverStatus {
   INACTIVE = 'INACTIVE'
 }
 
+export interface Vehicle {
+  id: string;
+  regNo: string;
+  model: string;
+  year: number;
+  maintenanceCost: number;
+  rentalExpenses: {
+    fastTag: number;
+    rtoFines: number;
+    accident: number;
+  };
+  assignedDriverId?: string;
+  status: 'ACTIVE' | 'MAINTENANCE' | 'IDLE';
+}
+
 export interface Driver {
   id: string;
   name: string;
   phone: string;
-  carRegNo: string;
+  carRegNo: string; // Linked to Vehicle regNo
+  vehicleId?: string;
   rentalModel: RentalModel;
   status: DriverStatus;
   bankDetails: string;
@@ -35,7 +51,9 @@ export interface SettlementRecord {
   status: 'PENDING' | 'SETTLED';
 }
 
-export interface AppState {
-  drivers: Driver[];
-  settlements: SettlementRecord[];
+export interface User {
+  id: string;
+  name: string;
+  role: string;
+  isAuthenticated: boolean;
 }
