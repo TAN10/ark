@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo, useEffect } from 'react';
 import { 
   Users, 
@@ -43,10 +44,9 @@ const App: React.FC = () => {
       insuranceEndDate: '2024-01-10', insuranceCompany: 'HDFC Ergo', pucExpiryDate: '2024-07-10',
       fastTagDetails: 'FT-001928', status: 'ACTIVE', odometerReading: 45000, odometerReadingDate: '2024-03-20',
       maintenanceHistory: [],
-      // Added missing properties required by Vehicle interface
-      maintenanceCost: 0,
+      maintenanceCost: 5500,
       rentalExpenses: {
-        fastTag: 0,
+        fastTag: 1200,
         rtoFines: 0,
         accident: 0
       }
@@ -65,6 +65,21 @@ const App: React.FC = () => {
 
   const [settlements, setSettlements] = useState<SettlementRecord[]>([]);
 
+  // Restored stats calculation to prevent Dashboard crash
+  const stats = useMemo(() => {
+    const totalRev = settlements.reduce((acc, s) => acc + (s.olaUberEarnings || 0), 0);
+    const totalExp = settlements.reduce((acc, s) => 
+      acc + (s.commissionDeducted || 0) + (s.fastTagCharge || 0) + (s.rtoFine || 0) + (s.privateTollCharges || 0), 0);
+    
+    return {
+      totalDrivers: drivers.length,
+      activeDrivers: drivers.filter(d => d.status === DriverStatus.ACTIVE).length,
+      totalRevenue: totalRev,
+      totalExpenses: totalExp,
+      activeFleetCount: vehicles.filter(v => v.status === 'ACTIVE').length
+    };
+  }, [drivers, settlements, vehicles]);
+
   useEffect(() => {
     if (user) localStorage.setItem(SESSION_KEY, JSON.stringify(user));
     else localStorage.removeItem(SESSION_KEY);
@@ -76,14 +91,14 @@ const App: React.FC = () => {
 
   const renderContent = () => {
     switch (activeTab) {
-      case 'dashboard': return <Dashboard stats={{}} drivers={drivers} settlements={settlements} />;
+      case 'dashboard': return <Dashboard stats={stats} drivers={drivers} settlements={settlements} />;
       case 'users': return <UserManagement />;
       case 'drivers': return <DriverManagement drivers={drivers} setDrivers={setDrivers} />;
       case 'vehicles': return <VehicleManagement vehicles={vehicles} setVehicles={setVehicles} />;
       case 'mapping': return <DriverVehicleMapping drivers={drivers} vehicles={vehicles} setDrivers={setDrivers} />;
       case 'billing': return <BillingInvoice drivers={drivers} settlements={settlements} setSettlements={setSettlements} />;
       case 'reports': return <Reports drivers={drivers} settlements={settlements} vehicles={vehicles} />;
-      default: return <Dashboard stats={{}} drivers={drivers} settlements={settlements} />;
+      default: return <Dashboard stats={stats} drivers={drivers} settlements={settlements} />;
     }
   };
 
@@ -91,12 +106,12 @@ const App: React.FC = () => {
     <div className="flex h-screen bg-[#f8fafc] overflow-hidden text-slate-900 font-sans">
       <aside className="w-80 bg-slate-950 text-white flex flex-col shrink-0">
         <div className="p-8 flex items-center gap-4">
-          <div className="bg-indigo-600 p-2.5 rounded-2xl">
+          <div className="bg-indigo-600 p-2.5 rounded-2xl shadow-lg shadow-indigo-600/30">
             <Activity className="w-6 h-6 text-white" />
           </div>
           <div>
-            <h1 className="text-xl font-black tracking-tight leading-none italic">ARKFLOW <span className="text-indigo-500">CRMS</span></h1>
-            <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mt-1">Operational Module v3.0</p>
+            <h1 className="text-xl font-black tracking-tight leading-none italic uppercase">ARKFLOW <span className="text-indigo-500">CRMS</span></h1>
+            <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mt-1">Operational Module v3.1</p>
           </div>
         </div>
 
@@ -117,30 +132,38 @@ const App: React.FC = () => {
 
         <div className="p-6 border-t border-white/5 bg-slate-900/40">
           <div className="flex items-center gap-4 mb-4">
-            <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center text-white font-black">{user.firstName.charAt(0)}</div>
+            <div className="w-10 h-10 rounded-xl bg-indigo-500 flex items-center justify-center text-white font-black shadow-inner">
+              {user.firstName.charAt(0)}
+            </div>
             <div className="overflow-hidden">
-              <p className="text-xs font-bold truncate">{user.firstName} {user.lastName}</p>
-              <p className="text-[10px] text-slate-500 font-bold uppercase">{user.role}</p>
+              <p className="text-xs font-bold truncate text-white">{user.firstName} {user.lastName}</p>
+              <p className="text-[10px] text-indigo-400/70 font-bold uppercase tracking-widest">{user.role}</p>
             </div>
           </div>
-          <button onClick={() => setUser(null)} className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-slate-400 hover:bg-red-500/10 hover:text-red-400 transition-all text-xs font-bold">
+          <button 
+            onClick={() => setUser(null)} 
+            className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-slate-400 hover:bg-red-500/10 hover:text-red-400 transition-all text-xs font-bold uppercase tracking-widest"
+          >
             <LogOut size={14} /> Exit System
           </button>
         </div>
       </aside>
 
-      <main className="flex-1 overflow-y-auto">
-        <header className="bg-white border-b border-slate-200 sticky top-0 z-40 px-10 py-5 flex justify-between items-center">
+      <main className="flex-1 overflow-y-auto bg-slate-50/30">
+        <header className="bg-white/80 backdrop-blur-md border-b border-slate-200 sticky top-0 z-40 px-10 py-5 flex justify-between items-center">
           <h2 className="text-xl font-bold text-slate-800 capitalize tracking-tight">{activeTab.replace(/([A-Z])/g, ' $1').trim()}</h2>
           <div className="flex items-center gap-6">
-            <div className="flex items-center gap-2 px-4 py-2 bg-green-50 rounded-xl border border-green-100">
-               <ShieldCheck className="text-green-600" size={16} />
-               <span className="text-[10px] font-black text-green-700 uppercase tracking-widest">Validated Session</span>
+            <div className="flex items-center gap-2 px-4 py-2 bg-indigo-50 rounded-xl border border-indigo-100">
+               <ShieldCheck className="text-indigo-600" size={16} />
+               <span className="text-[10px] font-black text-indigo-700 uppercase tracking-widest">Secure Operator Portal</span>
             </div>
-            <Bell size={20} className="text-slate-400" />
+            <button className="relative p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all">
+              <Bell size={20} />
+              <span className="absolute top-2 right-2 w-2 h-2 bg-rose-500 border-2 border-white rounded-full"></span>
+            </button>
           </div>
         </header>
-        <div className="p-10 max-w-[1600px] mx-auto animate-in fade-in duration-500">
+        <div className="p-10 max-w-[1600px] mx-auto animate-in fade-in duration-700 slide-in-from-bottom-2">
           {renderContent()}
         </div>
       </main>
@@ -149,15 +172,15 @@ const App: React.FC = () => {
 };
 
 const SectionTitle = ({children}: {children: React.ReactNode}) => (
-  <p className="px-4 py-4 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">{children}</p>
+  <p className="px-4 py-4 text-[10px] font-black text-indigo-500/50 uppercase tracking-[0.2em]">{children}</p>
 );
 
 const NavItem = ({ active, onClick, icon, label }: { active: boolean, onClick: () => void, icon: React.ReactNode, label: string }) => (
   <button
     onClick={onClick}
-    className={`w-full flex items-center gap-4 px-5 py-3.5 rounded-2xl transition-all group ${active ? 'bg-indigo-600 text-white font-bold shadow-lg shadow-indigo-600/20' : 'text-slate-400 hover:bg-white/5 hover:text-white'}`}
+    className={`w-full flex items-center gap-4 px-5 py-3.5 rounded-2xl transition-all group ${active ? 'bg-indigo-600 text-white font-bold shadow-xl shadow-indigo-600/20' : 'text-slate-400 hover:bg-white/5 hover:text-white'}`}
   >
-    <span className={`${active ? 'text-white' : 'group-hover:text-indigo-500'}`}>{icon}</span>
+    <span className={`${active ? 'text-white' : 'group-hover:text-indigo-500'} transition-colors`}>{icon}</span>
     <span className="text-sm tracking-tight">{label}</span>
   </button>
 );
