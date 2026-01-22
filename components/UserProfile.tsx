@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { User, ShieldCheck, Mail, Calendar, Key, Save } from 'lucide-react';
 import { User as UserType } from '../types';
@@ -9,9 +8,11 @@ interface UserProfileProps {
 }
 
 const UserProfile: React.FC<UserProfileProps> = ({ user, onUpdate }) => {
+  // Updated formData to use properties from UserType
   const [formData, setFormData] = useState({
-    name: user.name,
-    email: user.email
+    firstName: user.firstName,
+    lastName: user.lastName,
+    emailAddress: user.emailAddress
   });
 
   const handleSave = () => {
@@ -36,23 +37,33 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, onUpdate }) => {
             
             <div className="grid grid-cols-2 gap-6">
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-500 uppercase">Full Name</label>
+                <label className="text-xs font-bold text-slate-500 uppercase">First Name</label>
                 <input 
                   type="text" 
-                  value={formData.name}
-                  onChange={(e) => setFormData({...formData, name: e.target.value})}
+                  value={formData.firstName}
+                  onChange={(e) => setFormData({...formData, firstName: e.target.value})}
                   className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900" 
                 />
               </div>
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-500 uppercase">Email Address</label>
+                <label className="text-xs font-bold text-slate-500 uppercase">Last Name</label>
                 <input 
-                  type="email" 
-                  value={formData.email}
-                  onChange={(e) => setFormData({...formData, email: e.target.value})}
+                  type="text" 
+                  value={formData.lastName}
+                  onChange={(e) => setFormData({...formData, lastName: e.target.value})}
                   className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900" 
                 />
               </div>
+            </div>
+
+            <div className="space-y-1.5 pt-4">
+                <label className="text-xs font-bold text-slate-500 uppercase">Email Address</label>
+                <input 
+                  type="email" 
+                  value={formData.emailAddress}
+                  onChange={(e) => setFormData({...formData, emailAddress: e.target.value})}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900" 
+                />
             </div>
 
             <div className="pt-4 flex justify-end">
@@ -81,10 +92,10 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, onUpdate }) => {
         <div className="space-y-6">
           <div className="bg-slate-900 text-white p-8 rounded-3xl shadow-xl space-y-6">
             <div className="w-20 h-20 rounded-2xl bg-amber-500 flex items-center justify-center text-slate-900 text-3xl font-black mx-auto">
-              {user.name.charAt(0)}
+              {user.firstName.charAt(0)}
             </div>
             <div className="text-center space-y-1">
-              <h4 className="font-bold text-xl">{user.name}</h4>
+              <h4 className="font-bold text-xl">{user.firstName} {user.lastName}</h4>
               <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 rounded-full border border-white/10">
                 <ShieldCheck size={14} className="text-amber-500" />
                 <span className="text-[10px] font-bold uppercase tracking-widest">{user.role}</span>

@@ -22,15 +22,18 @@ const SettlementSystem: React.FC<SettlementSystemProps> = ({ drivers, settlement
       const results = await analyzeReport(mockCsv);
       const newSettlements: SettlementRecord[] = results.map((res: any) => {
         const driver = drivers.find(d => d.name === res.driverName);
+        /* Fixed property names to match SettlementRecord interface in types.ts */
         return {
           id: Math.random().toString(36).substr(2, 9),
           driverId: driver?.id || 'unknown',
+          vehRegNumber: driver?.assignedVehicleReg || 'unknown',
           weekEnding: new Date().toISOString().split('T')[0],
           olaUberEarnings: res.earnings,
           commissionDeducted: res.commission,
-          fastTagCharges: 500,
-          rtoFines: 0,
-          tollTax: 100,
+          fastTagCharge: 500,
+          rtoFine: 0,
+          privateTollCharges: 100,
+          anyOtherCharges: 0,
           netPayable: res.earnings - res.commission - 500 - 100,
           status: 'PENDING'
         };
@@ -89,14 +92,15 @@ const SettlementSystem: React.FC<SettlementSystemProps> = ({ drivers, settlement
           <tbody className="divide-y divide-slate-100">
             {settlements.map(s => {
               const driver = drivers.find(d => d.id === s.driverId);
+              /* Fixed carRegNo -> assignedVehicleReg and deduction field names */
               return (
                 <tr key={s.id} className="hover:bg-slate-50 transition-colors">
                   <td className="px-6 py-4">
                     <p className="text-sm font-bold text-slate-900">{driver?.name || 'Unknown'}</p>
-                    <p className="text-xs text-slate-500">{driver?.carRegNo}</p>
+                    <p className="text-xs text-slate-500">{driver?.assignedVehicleReg}</p>
                   </td>
                   <td className="px-6 py-4 text-right text-sm font-semibold">₹{s.olaUberEarnings.toLocaleString()}</td>
-                  <td className="px-6 py-4 text-right text-sm text-red-500">₹{(s.commissionDeducted + s.fastTagCharges + s.tollTax).toLocaleString()}</td>
+                  <td className="px-6 py-4 text-right text-sm text-red-500">₹{(s.commissionDeducted + s.fastTagCharge + s.privateTollCharges).toLocaleString()}</td>
                   <td className="px-6 py-4 text-right text-sm font-bold text-green-600">₹{s.netPayable.toLocaleString()}</td>
                   <td className="px-6 py-4 text-center">
                     <button 

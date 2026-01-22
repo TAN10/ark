@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Lock, Mail, Loader2, AlertCircle, ShieldCheck, Activity } from 'lucide-react';
 import { User } from '../types';
@@ -20,13 +19,19 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
 
     setTimeout(() => {
       if (email === 'admin@arkshipping.com' && password === 'admin123') {
+        // Updated to match the User interface from types.ts
         onLogin({
           id: 'u-1',
-          name: 'Vikram Singh',
-          email: 'admin@arkshipping.com',
+          userId: 'ADM-001',
+          firstName: 'Vikram',
+          lastName: 'Singh',
+          emailAddress: 'admin@arkshipping.com',
+          mobileNumber: '9876543210',
           role: 'ADMIN',
           isAuthenticated: true,
-          lastLogin: new Date().toISOString()
+          status: 'ACTIVE',
+          createdOn: new Date().toISOString(),
+          createdBy: 'SYSTEM'
         });
       } else {
         setError('Verification failed. Invalid operational credentials.');
