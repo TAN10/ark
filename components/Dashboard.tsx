@@ -9,7 +9,8 @@ import {
   ArrowDownRight,
   Zap,
   Clock,
-  Activity
+  Activity,
+  History
 } from 'lucide-react';
 import { Driver, SettlementRecord } from '../types';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
@@ -27,32 +28,29 @@ interface DashboardProps {
 }
 
 const Dashboard: React.FC<DashboardProps> = ({ stats, drivers, settlements }) => {
-  // Safe formatting to prevent crashes
   const formatCurrency = (val: number | undefined) => `₹${(val || 0).toLocaleString()}`;
   const formatCount = (val: number | undefined) => (val || 0).toString();
 
   const chartData = [
-    { name: 'Mon', income: 4200 },
-    { name: 'Tue', income: 3800 },
-    { name: 'Wed', income: 5500 },
-    { name: 'Thu', income: 4900 },
-    { name: 'Fri', income: 6200 },
-    { name: 'Sat', income: 7800 },
-    { name: 'Sun', income: 6400 },
+    { name: '05/12', income: 42000 },
+    { name: '05/13', income: 38500 },
+    { name: '05/14', income: 55200 },
+    { name: '05/15', income: 49000 },
+    { name: '05/16', income: 62800 },
+    { name: '05/17', income: 78000 },
+    { name: '05/18', income: 64500 },
   ];
 
   return (
-    <div className="space-y-10">
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+    <div className="space-y-8 pb-12">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
-          <h2 className="text-4xl font-black text-slate-900 tracking-tight italic">OPERATIONAL DASHBOARD</h2>
-          <p className="text-slate-500 font-medium mt-1">Enterprise-level fleet tracking and settlement intelligence.</p>
+          <h2 className="text-3xl font-black text-slate-900 dark:text-white tracking-tighter uppercase italic">Control Center</h2>
+          <p className="text-slate-500 font-bold text-[10px] uppercase tracking-[0.2em] mt-1.5">Fleet intelligence & financial metrics</p>
         </div>
-        <div className="flex gap-3">
-          <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-xl border border-slate-200 text-[10px] font-black uppercase tracking-widest shadow-sm text-slate-400">
-            <Clock size={14} className="text-indigo-500" />
-            Live Sync: ACTIVE
-          </div>
+        <div className="flex items-center gap-3 bg-slate-100 dark:bg-slate-900/50 p-2 rounded-xl border border-slate-200 dark:border-white/5">
+          <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+          <span className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Real-time processing active</span>
         </div>
       </div>
 
@@ -61,110 +59,112 @@ const Dashboard: React.FC<DashboardProps> = ({ stats, drivers, settlements }) =>
         <StatCard 
           label="Total Fleet Drivers" 
           value={formatCount(stats.totalDrivers)} 
-          icon={<Users className="text-indigo-600" />} 
-          trend="Master Master List" 
+          icon={<Users size={20} />} 
+          trend="+12% vs last month" 
           positive={true} 
+          color="text-cyan-600 dark:text-cyan-500"
         />
         <StatCard 
-          label="Operational Cars" 
+          label="Operational Units" 
           value={formatCount(stats.activeFleetCount)} 
-          icon={<Car className="text-emerald-600" />} 
-          trend="Fleet Active" 
+          icon={<Car size={20} />} 
+          trend="85% Utilization" 
           positive={true} 
+          color="text-emerald-600 dark:text-emerald-500"
         />
         <StatCard 
-          label="Settled Revenue" 
+          label="Gross Revenue" 
           value={formatCurrency(stats.totalRevenue)} 
-          icon={<DollarSign className="text-amber-600" />} 
-          trend="Current Cycle" 
+          icon={<DollarSign size={20} />} 
+          trend="Target: ₹1.2M" 
           positive={true} 
+          color="text-amber-600 dark:text-amber-500"
         />
         <StatCard 
-          label="Operational Expenses" 
+          label="Active Liabilities" 
           value={formatCurrency(stats.totalExpenses)} 
-          icon={<AlertTriangle className="text-rose-600" />} 
+          icon={<AlertTriangle size={20} />} 
           trend="Includes Fines" 
           positive={false} 
+          color="text-rose-600 dark:text-rose-500"
         />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Main Income Chart */}
-        <div className="lg:col-span-2 bg-white p-8 rounded-[2.5rem] border border-slate-200 shadow-xl shadow-slate-200/40">
-          <div className="flex justify-between items-center mb-8">
+        <div className="lg:col-span-2 bg-white dark:bg-slate-950/80 p-8 rounded-3xl border border-slate-200 dark:border-white/5 shadow-xl dark:shadow-2xl">
+          <div className="flex justify-between items-center mb-10">
             <div className="flex items-center gap-3">
-               <div className="p-2.5 bg-indigo-50 rounded-2xl text-indigo-600">
+               <div className="p-2.5 bg-cyan-600/10 rounded-xl text-cyan-600 dark:text-cyan-500 border border-cyan-500/10">
                   <Zap size={20} />
                </div>
-               <h3 className="text-xl font-black text-slate-900 tracking-tight italic">REVENUE ANALYTICS</h3>
+               <h3 className="text-lg font-black text-slate-900 dark:text-white tracking-tight uppercase italic">Yield Analytics</h3>
             </div>
-            <select className="bg-slate-100 border-none text-[10px] font-black uppercase rounded-xl p-2.5 px-5 focus:ring-2 focus:ring-indigo-500/20">
-              <option>Cycle: 7D Period</option>
-              <option>Cycle: 30D Period</option>
-            </select>
+            <div className="flex gap-2">
+              <button className="px-4 py-1.5 bg-slate-50 dark:bg-slate-900 text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest rounded-lg border border-slate-200 dark:border-white/5 hover:text-slate-900 dark:hover:text-white transition-all">Daily</button>
+              <button className="px-4 py-1.5 bg-cyan-600/10 dark:bg-cyan-600/20 text-[9px] font-black text-cyan-600 dark:text-cyan-400 uppercase tracking-widest rounded-lg border border-cyan-500/10 shadow-lg shadow-cyan-500/5">Weekly</button>
+            </div>
           </div>
-          <div className="h-96">
+          <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={chartData}>
                 <defs>
                   <linearGradient id="colorIncome" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#6366f1" stopOpacity={0.15}/>
-                    <stop offset="95%" stopColor="#6366f1" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="#0891b2" stopOpacity={0.2}/>
+                    <stop offset="95%" stopColor="#0891b2" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 10, fontWeight: 800}} />
-                <YAxis axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 10, fontWeight: 800}} />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#88888820" />
+                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 10, fontWeight: 900}} />
+                <YAxis axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 10, fontWeight: 900}} />
                 <Tooltip 
-                  contentStyle={{borderRadius: '24px', border: 'none', boxShadow: '0 25px 50px -12px rgb(0 0 0 / 0.15)', padding: '16px'}}
-                  itemStyle={{fontWeight: 900, color: '#4338ca'}}
+                  contentStyle={{backgroundColor: 'currentColor', borderRadius: '12px', border: 'none', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)', padding: '12px'}}
+                  itemStyle={{fontWeight: 900, color: '#06b6d4', textTransform: 'uppercase', fontSize: '10px'}}
+                  labelStyle={{color: '#94a3b8', fontSize: '10px', marginBottom: '4px'}}
                 />
-                <Area type="monotone" dataKey="income" stroke="#6366f1" strokeWidth={5} fillOpacity={1} fill="url(#colorIncome)" />
+                <Area type="monotone" dataKey="income" stroke="#0891b2" strokeWidth={3} fillOpacity={1} fill="url(#colorIncome)" />
               </AreaChart>
             </ResponsiveContainer>
           </div>
         </div>
 
-        {/* Recent Activity Side Column */}
-        <div className="bg-white p-8 rounded-[2.5rem] border border-slate-200 shadow-xl shadow-slate-200/40 flex flex-col">
-          <h3 className="text-xl font-black text-slate-900 mb-8 flex items-center gap-3 italic">
-            <Clock size={20} className="text-indigo-400" />
-            CYCLE SETTLEMENTS
+        <div className="bg-white dark:bg-slate-950/80 p-8 rounded-3xl border border-slate-200 dark:border-white/5 shadow-xl dark:shadow-2xl flex flex-col">
+          <h3 className="text-lg font-black text-slate-900 dark:text-white mb-8 flex items-center gap-3 uppercase italic">
+            <History size={20} className="text-cyan-600 dark:text-cyan-500" />
+            Settlements
           </h3>
-          <div className="space-y-6 flex-1 overflow-y-auto pr-2 scrollbar-hide">
+          <div className="space-y-4 flex-1 overflow-y-auto pr-2 scrollbar-hide">
             {settlements.length > 0 ? settlements.map((s, idx) => {
               const driver = drivers.find(d => d.id === s.driverId);
               return (
-                <div key={idx} className="flex items-center justify-between group p-3 hover:bg-slate-50 rounded-2xl transition-all border border-transparent hover:border-slate-100">
+                <div key={idx} className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900/40 rounded-2xl border border-slate-100 dark:border-white/5 hover:border-cyan-500/30 transition-all cursor-pointer group">
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-700 font-black text-lg shadow-sm">
+                    <div className="w-10 h-10 rounded-xl bg-white dark:bg-slate-800 flex items-center justify-center text-slate-500 dark:text-slate-400 font-black text-sm group-hover:text-cyan-600 dark:group-hover:text-cyan-400 border border-slate-200 dark:border-white/5 transition-colors shadow-sm">
                       {driver?.name.charAt(0)}
                     </div>
                     <div>
-                      <p className="text-sm font-black text-slate-900">{driver?.name}</p>
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{s.weekEnding}</p>
+                      <p className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-tight">{driver?.name}</p>
+                      <p className="text-[9px] font-bold text-slate-500 dark:text-slate-600 uppercase tracking-widest">{s.weekEnding}</p>
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm font-black text-indigo-600">₹{s.netPayable.toLocaleString()}</p>
-                    <span className="text-[8px] bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-lg uppercase font-black tracking-widest border border-emerald-100">
+                    <p className="text-xs font-black text-cyan-600 dark:text-cyan-500">₹{s.netPayable.toLocaleString()}</p>
+                    <span className={`text-[8px] px-1.5 py-0.5 rounded uppercase font-black tracking-widest ${s.status === 'SETTLED' ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-500' : 'bg-amber-500/10 text-amber-600 dark:text-amber-500'}`}>
                       {s.status}
                     </span>
                   </div>
                 </div>
               );
             }) : (
-              <div className="flex flex-col items-center justify-center h-full space-y-4 py-20 text-center">
-                <div className="p-4 bg-slate-50 rounded-full text-slate-300">
-                  {/* Fixed: Added Activity to lucide-react imports */}
-                  <Activity size={40} />
+              <div className="flex flex-col items-center justify-center h-full space-y-4 py-12 text-center">
+                <div className="p-4 bg-slate-100 dark:bg-slate-900 rounded-full text-slate-400 dark:text-slate-700">
+                  <Activity size={32} />
                 </div>
-                <p className="text-slate-400 text-xs font-bold uppercase tracking-widest">No Active Ledger Entries</p>
+                <p className="text-slate-500 dark:text-slate-600 text-[9px] font-black uppercase tracking-[0.2em]">Queue empty</p>
               </div>
             )}
           </div>
-          <button className="w-full mt-8 py-4 text-[10px] bg-slate-950 text-white hover:bg-indigo-600 font-black uppercase tracking-[0.2em] rounded-2xl transition-all shadow-lg">
-            Download Global Audit
+          <button className="w-full mt-8 py-3.5 bg-slate-900 dark:bg-white text-white dark:text-black hover:bg-cyan-600 transition-all text-[10px] font-black uppercase tracking-[0.2em] rounded-xl shadow-xl">
+            Export Master Log
           </button>
         </div>
       </div>
@@ -172,19 +172,19 @@ const Dashboard: React.FC<DashboardProps> = ({ stats, drivers, settlements }) =>
   );
 };
 
-const StatCard: React.FC<{label: string; value: string | number; icon: React.ReactNode; trend: string; positive: boolean}> = ({ label, value, icon, trend, positive }) => (
-  <div className="bg-white p-8 rounded-[2.5rem] border border-slate-200 shadow-xl shadow-slate-200/40 hover:shadow-indigo-500/10 transition-all group overflow-hidden relative border-b-4 border-b-transparent hover:border-b-indigo-500">
-    <div className="absolute top-0 right-0 w-32 h-32 bg-slate-50/50 rounded-full -mr-16 -mt-16 group-hover:bg-indigo-50 transition-colors"></div>
+const StatCard: React.FC<{label: string; value: string | number; icon: React.ReactNode; trend: string; positive: boolean; color: string}> = ({ label, value, icon, trend, positive, color }) => (
+  <div className="bg-white dark:bg-slate-950/80 p-6 rounded-3xl border border-slate-200 dark:border-white/5 hover:border-slate-300 dark:hover:border-white/10 transition-all group overflow-hidden relative shadow-sm dark:shadow-none">
+    <div className="absolute top-0 right-0 w-24 h-24 bg-slate-50 dark:bg-white/[0.02] rounded-full -mr-12 -mt-12 group-hover:bg-cyan-500/5 transition-colors"></div>
     <div className="relative z-10">
       <div className="flex justify-between items-start mb-6">
-        <div className="p-3.5 bg-slate-50 rounded-2xl group-hover:bg-indigo-600 group-hover:text-white transition-all shadow-sm">{icon}</div>
-        <div className={`flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest ${positive ? 'text-emerald-600' : 'text-rose-600'} bg-slate-50 px-2.5 py-1 rounded-lg`}>
-          {positive ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}
+        <div className={`p-2.5 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-white/5 ${color} group-hover:shadow-sm transition-all`}>{icon}</div>
+        <div className={`flex items-center gap-1 text-[8px] font-black uppercase tracking-widest ${positive ? 'text-emerald-600 dark:text-emerald-500' : 'text-rose-600 dark:text-rose-500'} bg-slate-100 dark:bg-black/40 px-2 py-0.5 rounded shadow-sm dark:shadow-none`}>
+          {positive ? <ArrowUpRight size={10} /> : <ArrowDownRight size={10} />}
           {trend}
         </div>
       </div>
-      <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest">{label}</p>
-      <p className="text-3xl font-black text-slate-950 mt-1 tracking-tighter italic">{value}</p>
+      <p className="text-slate-500 dark:text-slate-500 text-[9px] font-black uppercase tracking-[0.2em]">{label}</p>
+      <p className="text-2xl font-black text-slate-900 dark:text-white mt-1 tracking-tighter uppercase italic">{value}</p>
     </div>
   </div>
 );
