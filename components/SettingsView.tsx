@@ -12,10 +12,10 @@ interface SettingsViewProps {
   toggleTheme: () => void;
 }
 
-const SUPABASE_SQL = `-- ARKFLOW SUPABASE MIGRATION V2
+const SUPABASE_SQL = `-- ARKFLOW SUPABASE MIGRATION V3
 -- Copy and run this in the Supabase SQL Editor
 
--- 1. DROP EXISTING TABLES (CAUTION: Resets data)
+-- 1. DROP EXISTING TABLES
 DROP TABLE IF EXISTS settlements;
 DROP TABLE IF EXISTS drivers;
 DROP TABLE IF EXISTS vehicles;
@@ -28,8 +28,15 @@ CREATE TABLE vehicles (
   model text NOT NULL,
   status text DEFAULT 'IDLE',
   odometer_reading integer DEFAULT 0,
+  chasis_number text,
+  purchase_date date,
+  registration_date date,
+  insurance_company text,
+  insurance_start_date date,
   insurance_end_date date,
   puc_expiry_date date,
+  fasttag_details text,
+  last_odometer_update date,
   created_at timestamp with time zone DEFAULT now()
 );
 
@@ -46,6 +53,7 @@ CREATE TABLE drivers (
   permanent_address text,
   city text,
   state text,
+  village_name text,
   status text DEFAULT 'ACTIVE',
   onboarded_at timestamp with time zone DEFAULT now(),
   assigned_vehicle_reg text,
@@ -68,7 +76,7 @@ CREATE TABLE settlements (
   created_at timestamp with time zone DEFAULT now()
 );
 
--- 5. ENABLE ACCESS (FOR DEMO/DEVELOPMENT)
+-- 5. ENABLE ACCESS
 ALTER TABLE drivers ENABLE ROW LEVEL SECURITY;
 ALTER TABLE vehicles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE settlements ENABLE ROW LEVEL SECURITY;
@@ -91,14 +99,13 @@ const SettingsView: React.FC<SettingsViewProps> = ({ isDarkMode, toggleTheme }) 
     <div className="space-y-10 pb-20">
       <div className="flex flex-col">
         <h2 className="text-4xl font-black text-slate-900 dark:text-white tracking-tighter uppercase italic">Infrastructure</h2>
-        <p className="text-slate-500 font-bold text-xs uppercase tracking-[0.2em] mt-2">Vercel Deployment & Supabase Bridge</p>
+        <p className="text-slate-500 font-bold text-xs uppercase tracking-[0.2em] mt-2">Professional Deployment Configuration</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
         <div className="lg:col-span-2 space-y-8">
           
-          {/* VERCEL CONNECTION GUIDE */}
-          <section className="bg-slate-900 text-white p-12 rounded-[3rem] shadow-2xl relative overflow-hidden">
+          <section className="bg-slate-900 text-white p-12 rounded-[3rem] shadow-2xl relative overflow-hidden border border-white/10">
             <div className="absolute top-0 right-0 p-8">
               <Globe className="text-cyan-500 opacity-20" size={120} />
             </div>
@@ -109,26 +116,18 @@ const SettingsView: React.FC<SettingsViewProps> = ({ isDarkMode, toggleTheme }) 
                   <Server size={24} />
                 </div>
                 <div>
-                  <h3 className="text-2xl font-black italic uppercase tracking-tight">Vercel Env Variables</h3>
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Connect your deployment to the cloud</p>
+                  <h3 className="text-2xl font-black italic uppercase tracking-tight">Vercel Pipeline</h3>
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Production Environment Variables</p>
                 </div>
               </div>
 
               <div className="space-y-4">
-                <EnvRow name="SUPABASE_URL" description="Copy 'Project URL' from Supabase Settings -> API" />
-                <EnvRow name="SUPABASE_ANON_KEY" description="Copy 'anon public' key from Supabase Settings -> API" />
-              </div>
-
-              <div className="p-6 bg-white/5 border border-white/10 rounded-2xl flex items-start gap-4">
-                <Zap className="text-amber-500 shrink-0" size={20} />
-                <p className="text-xs font-bold text-slate-300 leading-relaxed">
-                  After adding these to Vercel, you must click <span className="text-white">"Redeploy"</span> in Vercel to inject the new keys into your production build.
-                </p>
+                <EnvRow name="SUPABASE_URL" description="Endpoint URL from Supabase Project API Settings" />
+                <EnvRow name="SUPABASE_ANON_KEY" description="Anon Public API Key for client access" />
               </div>
             </div>
           </section>
 
-          {/* SQL MIGRATION PANEL */}
           <section className="bg-white dark:bg-slate-950 p-12 rounded-[3rem] border border-slate-200 dark:border-white/5 shadow-xl space-y-10">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
@@ -136,8 +135,8 @@ const SettingsView: React.FC<SettingsViewProps> = ({ isDarkMode, toggleTheme }) 
                   <Terminal size={24} />
                 </div>
                 <div>
-                  <h3 className="text-2xl font-black italic uppercase text-slate-900 dark:text-white tracking-tight">Database Schema</h3>
-                  <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mt-1">Run this in Supabase SQL Editor</p>
+                  <h3 className="text-2xl font-black italic uppercase text-slate-900 dark:text-white tracking-tight">Database Migration</h3>
+                  <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mt-1">Execute V3 Schema in SQL Editor</p>
                 </div>
               </div>
               <button 
@@ -145,7 +144,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({ isDarkMode, toggleTheme }) 
                 className={`px-6 py-3 rounded-xl flex items-center gap-2 text-[10px] font-black uppercase tracking-widest transition-all ${copied ? 'bg-emerald-500 text-white' : 'bg-slate-100 dark:bg-slate-900 text-slate-900 dark:text-white hover:bg-cyan-600 hover:text-white'}`}
               >
                 {copied ? <CheckCircle size={14} /> : <Copy size={14} />}
-                {copied ? 'Schema Copied' : 'Copy SQL Schema'}
+                {copied ? 'Copied' : 'Copy SQL'}
               </button>
             </div>
 
@@ -157,23 +156,13 @@ const SettingsView: React.FC<SettingsViewProps> = ({ isDarkMode, toggleTheme }) 
           </section>
         </div>
 
-        {/* SIDEBAR STATUS */}
         <div className="space-y-8">
           <div className="bg-white dark:bg-slate-950 p-10 rounded-[3rem] border border-slate-200 dark:border-white/5 shadow-xl">
-             <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-8">Node Health</h3>
+             <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-8">System Connectivity</h3>
              <div className="space-y-6">
-                <StatusItem label="API Connection" value={process.env.SUPABASE_URL ? 'Linked' : 'Missing'} active={!!process.env.SUPABASE_URL} />
-                <StatusItem label="Security Token" value={process.env.SUPABASE_ANON_KEY ? 'Verified' : 'Missing'} active={!!process.env.SUPABASE_ANON_KEY} />
-                <StatusItem label="Data Protocol" value="PostgREST" active />
+                <StatusItem label="Supabase URL" value={process.env.SUPABASE_URL ? 'Linked' : 'Missing'} active={!!process.env.SUPABASE_URL} />
+                <StatusItem label="Anon API Key" value={process.env.SUPABASE_ANON_KEY ? 'Verified' : 'Missing'} active={!!process.env.SUPABASE_ANON_KEY} />
              </div>
-          </div>
-
-          <div className="bg-indigo-600 text-white p-10 rounded-[3rem] shadow-2xl shadow-indigo-600/30">
-             <Key size={32} className="mb-6 opacity-40" />
-             <h4 className="text-lg font-black italic uppercase tracking-tighter mb-4 leading-tight">Professional Security</h4>
-             <p className="text-[10px] font-bold text-indigo-100 leading-relaxed opacity-80 uppercase">
-                All data is encrypted in transit using SSL/TLS 1.3. Your Supabase anon key is restricted by Row Level Security (RLS) policies defined in the schema.
-             </p>
           </div>
           
           <button 
@@ -193,7 +182,7 @@ const EnvRow = ({ name, description }: { name: string, description: string }) =>
   <div className="p-5 bg-white/5 rounded-2xl border border-white/10 hover:border-cyan-500/50 transition-all group">
     <div className="flex justify-between items-center mb-1">
       <span className="text-[11px] font-black text-cyan-400 font-mono tracking-tight">{name}</span>
-      <span className="text-[8px] font-black text-slate-500 uppercase">Production</span>
+      <span className="text-[8px] font-black text-slate-500 uppercase">Var</span>
     </div>
     <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{description}</p>
   </div>
