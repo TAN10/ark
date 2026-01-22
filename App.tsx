@@ -6,7 +6,6 @@ import {
   Car, 
   LogOut,
   BarChart3,
-  ShieldCheck,
   Activity,
   Link as LinkIcon,
   UserCheck,
@@ -15,9 +14,10 @@ import {
   Settings as SettingsIcon,
   Sun,
   Moon,
-  User as UserIcon
+  CloudLightning
 } from 'lucide-react';
 import { Driver, RentalModel, DriverStatus, SettlementRecord, Vehicle, User } from './types';
+import { cloudService } from './services/cloudService';
 import Dashboard from './components/Dashboard';
 import DriverManagement from './components/DriverManagement';
 import VehicleManagement from './components/VehicleManagement';
@@ -45,73 +45,45 @@ const App: React.FC = () => {
   });
 
   const [activeTab, setActiveTab] = useState<string>('dashboard');
+  const [isLoading, setIsLoading] = useState(true);
   
-  const [vehicles, setVehicles] = useState<Vehicle[]>([
-    { 
-      id: 'v1', regNo: 'MH-12-CR-2024', registrationDate: '2024-01-10', chasisNumber: 'XCV998877SH', 
-      make: 'Maruti', model: 'Ertiga', purchaseDate: '2024-01-05', insuranceStartDate: '2024-01-10',
-      insuranceEndDate: '2024-12-30', insuranceCompany: 'Tata AIG', pucExpiryDate: '2024-12-10',
-      fastTagDetails: 'FT-991022', status: 'ACTIVE', odometerReading: 12450, odometerReadingDate: '2024-05-20',
-      maintenanceHistory: [
-        { id: 'm1', vehRegNumber: 'MH-12-CR-2024', serviceType: 'Engine Repair', serviceExpense: 4500, serviceDate: '2024-03-15', odometerReading: 8000, createdOn: '2024-03-15', createdBy: 'SYSTEM' }
-      ],
-      maintenanceCost: 4500,
-      rentalExpenses: { fastTag: 1200, rtoFines: 0, accident: 0 }
-    },
-    { 
-      id: 'v2', regNo: 'MH-14-GH-4455', registrationDate: '2023-11-15', chasisNumber: 'ZZA112233KK', 
-      make: 'Hyundai', model: 'Aura', purchaseDate: '2023-11-01', insuranceStartDate: '2023-11-15',
-      insuranceEndDate: '2024-11-15', insuranceCompany: 'ICICI Lombard', pucExpiryDate: '2024-05-15',
-      fastTagDetails: 'FT-882211', status: 'IDLE', odometerReading: 28900, odometerReadingDate: '2024-05-20',
-      maintenanceHistory: [], maintenanceCost: 0,
-      rentalExpenses: { fastTag: 500, rtoFines: 2500, accident: 0 }
-    },
-    { 
-      id: 'v3', regNo: 'MH-12-XY-9000', registrationDate: '2024-02-20', chasisNumber: 'BBX009988VV', 
-      make: 'Maruti', model: 'Dzire', purchaseDate: '2024-02-10', insuranceStartDate: '2024-02-20',
-      insuranceEndDate: '2025-02-20', insuranceCompany: 'HDFC Ergo', pucExpiryDate: '2024-08-20',
-      fastTagDetails: 'FT-112233', status: 'ACTIVE', odometerReading: 5600, odometerReadingDate: '2024-05-20',
-      maintenanceHistory: [], maintenanceCost: 0,
-      rentalExpenses: { fastTag: 800, rtoFines: 0, accident: 0 }
-    }
-  ]);
+  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+  const [drivers, setDrivers] = useState<Driver[]>([]);
+  const [settlements, setSettlements] = useState<SettlementRecord[]>([]);
 
-  const [drivers, setDrivers] = useState<Driver[]>([
-    {
-      id: 'd1', driverId: 'DRV-101', name: 'Arjun Mehra', phone: '9811223344', dob: '1988-05-15',
-      licenseNumber: 'DL-MH12-2022-001', aadharNumber: '112233445566', panNumber: 'ABCDE1122F',
-      permanentAddress: 'Kothrud, Pune', state: 'Maharashtra', city: 'Pune', villageName: 'Kothrud',
-      status: DriverStatus.ACTIVE, onboardedAt: '2023-10-01', assignedVehicleReg: 'MH-12-CR-2024',
-      paymentModel: RentalModel.DAILY
-    },
-    {
-      id: 'd2', driverId: 'DRV-102', name: 'Suresh Patil', phone: '9766554433', dob: '1992-08-22',
-      licenseNumber: 'DL-MH14-2023-005', aadharNumber: '998877665544', panNumber: 'ZZZYY8877G',
-      permanentAddress: 'Hinjewadi, Pune', state: 'Maharashtra', city: 'Pune', villageName: 'Maan',
-      status: DriverStatus.ACTIVE, onboardedAt: '2024-01-15', assignedVehicleReg: 'MH-12-XY-9000',
-      paymentModel: RentalModel.COMMISSION
-    },
-    {
-      id: 'd3', driverId: 'DRV-103', name: 'Vikram Jadhav', phone: '9011228877', dob: '1995-12-10',
-      licenseNumber: 'DL-MH12-2024-012', aadharNumber: '445566778899', panNumber: 'KKJJI0011L',
-      permanentAddress: 'Pimpri, Pune', state: 'Maharashtra', city: 'Pune', villageName: 'Nigdi',
-      status: DriverStatus.ONBOARDING, onboardedAt: '2024-05-01', assignedVehicleReg: undefined,
-      paymentModel: RentalModel.DAILY
-    }
-  ]);
-
-  const [settlements, setSettlements] = useState<SettlementRecord[]>([
-    {
-      id: 's1', driverId: 'd1', vehRegNumber: 'MH-12-CR-2024', weekEnding: '2024-05-12',
-      olaUberEarnings: 22400, commissionDeducted: 4480, fastTagCharge: 1200, rtoFine: 0,
-      privateTollCharges: 450, anyOtherCharges: 0, netPayable: 16270, status: 'SETTLED'
-    },
-    {
-      id: 's2', driverId: 'd2', vehRegNumber: 'MH-12-XY-9000', weekEnding: '2024-05-12',
-      olaUberEarnings: 19800, commissionDeducted: 3960, fastTagCharge: 800, rtoFine: 0,
-      privateTollCharges: 200, anyOtherCharges: 0, netPayable: 14840, status: 'PENDING'
-    }
-  ]);
+  // Initial Cloud Load
+  useEffect(() => {
+    const loadData = async () => {
+      setIsLoading(true);
+      const [v, d, s] = await Promise.all([
+        cloudService.fetchVehicles([
+          { 
+            id: 'v1', regNo: 'MH-12-CR-2024', registrationDate: '2024-01-10', chasisNumber: 'XCV998877SH', 
+            make: 'Maruti', model: 'Ertiga', purchaseDate: '2024-01-05', insuranceStartDate: '2024-01-10',
+            insuranceEndDate: '2024-12-30', insuranceCompany: 'Tata AIG', pucExpiryDate: '2024-12-10',
+            fastTagDetails: 'FT-991022', status: 'ACTIVE', odometerReading: 12450, odometerReadingDate: '2024-05-20',
+            maintenanceHistory: [], maintenanceCost: 4500,
+            rentalExpenses: { fastTag: 1200, rtoFines: 0, accident: 0 }
+          }
+        ]),
+        cloudService.fetchDrivers([
+          {
+            id: 'd1', driverId: 'DRV-101', name: 'Arjun Mehra', phone: '9811223344', dob: '1988-05-15',
+            licenseNumber: 'DL-MH12-2022-001', aadharNumber: '112233445566', panNumber: 'ABCDE1122F',
+            permanentAddress: 'Kothrud, Pune', state: 'Maharashtra', city: 'Pune', villageName: 'Kothrud',
+            status: DriverStatus.ACTIVE, onboardedAt: '2023-10-01', assignedVehicleReg: 'MH-12-CR-2024',
+            paymentModel: RentalModel.DAILY
+          }
+        ]),
+        cloudService.fetchSettlements()
+      ]);
+      setVehicles(v);
+      setDrivers(d);
+      setSettlements(s);
+      setIsLoading(false);
+    };
+    loadData();
+  }, []);
 
   const stats = useMemo(() => {
     const totalRev = settlements.reduce((acc, s) => acc + (s.olaUberEarnings || 0), 0);
@@ -150,6 +122,13 @@ const App: React.FC = () => {
   }
 
   const renderContent = () => {
+    if (isLoading) return (
+      <div className="flex flex-col items-center justify-center h-[60vh] gap-6 text-slate-400">
+        <Activity size={48} className="animate-pulse text-cyan-500" />
+        <p className="text-[10px] font-black uppercase tracking-[0.4em]">Establishing Cloud Node...</p>
+      </div>
+    );
+
     switch (activeTab) {
       case 'dashboard': return <Dashboard stats={stats} drivers={drivers} settlements={settlements} />;
       case 'users': return <UserManagement />;
@@ -167,15 +146,14 @@ const App: React.FC = () => {
 
   return (
     <div className="flex h-screen bg-slate-50 dark:bg-[#020617] overflow-hidden text-slate-900 dark:text-slate-100 font-sans selection:bg-cyan-500/30">
-      {/* Sleek Professional Sidebar */}
       <aside className="w-72 bg-white dark:bg-slate-950 border-r border-slate-200 dark:border-white/5 flex flex-col shrink-0">
         <div className="p-8 flex items-center gap-4">
           <div className="bg-cyan-600 p-2.5 rounded-xl shadow-[0_0_20px_rgba(8,145,178,0.3)]">
-            <Activity className="w-5 h-5 text-white" />
+            <CloudLightning className="w-5 h-5 text-white" />
           </div>
           <div>
             <h1 className="text-lg font-black tracking-tighter leading-none italic uppercase text-slate-900 dark:text-white">ARKFLOW</h1>
-            <p className="text-[8px] font-bold text-slate-500 uppercase tracking-[0.2em] mt-1.5">CRMS (Car Rental Management System)</p>
+            <p className="text-[8px] font-bold text-slate-500 uppercase tracking-[0.2em] mt-1.5">Supabase Edition</p>
           </div>
         </div>
 
@@ -221,32 +199,19 @@ const App: React.FC = () => {
           <h2 className="text-sm font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.2em]">{activeTab.replace(/([A-Z])/g, ' $1').trim()}</h2>
           <div className="flex items-center gap-4">
             <div className="hidden md:flex items-center gap-4 text-[10px] font-black uppercase tracking-widest text-slate-400">
-               <span className="flex items-center gap-1.5"><div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div> Mainnet v3.2</span>
+               <span className="flex items-center gap-1.5"><div className="w-1.5 h-1.5 rounded-full bg-cyan-500 shadow-[0_0_8px_rgba(6,182,212,0.5)]"></div> Cloud Ready</span>
             </div>
             <div className="flex items-center gap-2 border-l border-slate-200 dark:border-white/10 ml-4 pl-4">
-              <button 
-                onClick={toggleTheme}
-                className="p-2 text-slate-500 hover:text-cyan-600 hover:bg-slate-100 dark:hover:bg-white/5 rounded-lg transition-all"
-              >
+              <button onClick={toggleTheme} className="p-2 text-slate-500 hover:text-cyan-600 rounded-lg transition-all">
                 {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
               </button>
-              <button 
-                onClick={() => setActiveTab('notifications')}
-                className={`p-2 rounded-lg transition-all ${activeTab === 'notifications' ? 'text-cyan-600 bg-cyan-600/10' : 'text-slate-500 hover:text-cyan-600 hover:bg-slate-100 dark:hover:bg-white/5'}`}
-              >
-                <Bell size={18} />
-              </button>
-              <button 
-                onClick={() => setActiveTab('settings')}
-                className={`p-2 rounded-lg transition-all ${activeTab === 'settings' ? 'text-cyan-600 bg-cyan-600/10' : 'text-slate-500 hover:text-cyan-600 hover:bg-slate-100 dark:hover:bg-white/5'}`}
-              >
+              <button onClick={() => setActiveTab('settings')} className="p-2 text-slate-500 hover:text-cyan-600 rounded-lg transition-all">
                 <SettingsIcon size={18} />
               </button>
             </div>
           </div>
         </header>
-        
-        <div className="p-10 max-w-[1400px] mx-auto w-full animate-in fade-in duration-700">
+        <div className="p-10 max-w-[1400px] mx-auto w-full">
           {renderContent()}
         </div>
       </main>
@@ -254,18 +219,16 @@ const App: React.FC = () => {
   );
 };
 
-// Fixed: Made children optional to resolve "missing children" TS errors.
 const SectionTitle = ({children}: {children?: React.ReactNode}) => (
   <p className="px-5 py-4 text-[9px] font-black text-slate-400 dark:text-slate-600 uppercase tracking-[0.3em]">{children}</p>
 );
 
-// Fixed: Added optional children to prop type to resolve TS error at call sites.
-const NavItem = ({ active, onClick, icon, label, children }: { active: boolean, onClick: () => void, icon: React.ReactNode, label: string, children?: React.ReactNode }) => (
+const NavItem = ({ active, onClick, icon, label }: { active: boolean, onClick: () => void, icon: React.ReactNode, label: string }) => (
   <button
     onClick={onClick}
-    className={`w-full flex items-center gap-3.5 px-5 py-3 rounded-xl transition-all group ${active ? 'bg-cyan-600/10 text-cyan-600 dark:text-cyan-400 font-bold border border-cyan-500/20 shadow-[inset_0_0_20px_rgba(6,182,212,0.05)]' : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-slate-200 border border-transparent'}`}
+    className={`w-full flex items-center gap-3.5 px-5 py-3 rounded-xl transition-all group ${active ? 'bg-cyan-600 text-white shadow-xl shadow-cyan-600/20' : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-white/5 hover:text-slate-900'}`}
   >
-    <span className={`${active ? 'text-cyan-600 dark:text-cyan-400' : 'text-slate-400 dark:text-slate-500 group-hover:text-slate-600 dark:group-hover:text-slate-300'}`}>{icon}</span>
+    <span className={`${active ? 'text-white' : 'text-slate-400 group-hover:text-slate-600'}`}>{icon}</span>
     <span className="text-[11px] font-black uppercase tracking-widest">{label}</span>
   </button>
 );
