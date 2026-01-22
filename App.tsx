@@ -254,11 +254,13 @@ const App: React.FC = () => {
   );
 };
 
-const SectionTitle = ({children}: {children: React.ReactNode}) => (
+// Fixed: Made children optional to resolve "missing children" TS errors.
+const SectionTitle = ({children}: {children?: React.ReactNode}) => (
   <p className="px-5 py-4 text-[9px] font-black text-slate-400 dark:text-slate-600 uppercase tracking-[0.3em]">{children}</p>
 );
 
-const NavItem = ({ active, onClick, icon, label }: { active: boolean, onClick: () => void, icon: React.ReactNode, label: string }) => (
+// Fixed: Added optional children to prop type to resolve TS error at call sites.
+const NavItem = ({ active, onClick, icon, label, children }: { active: boolean, onClick: () => void, icon: React.ReactNode, label: string, children?: React.ReactNode }) => (
   <button
     onClick={onClick}
     className={`w-full flex items-center gap-3.5 px-5 py-3 rounded-xl transition-all group ${active ? 'bg-cyan-600/10 text-cyan-600 dark:text-cyan-400 font-bold border border-cyan-500/20 shadow-[inset_0_0_20px_rgba(6,182,212,0.05)]' : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-slate-200 border border-transparent'}`}

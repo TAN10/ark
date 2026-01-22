@@ -1,16 +1,21 @@
 
 import { GoogleGenAI, Type } from "@google/genai";
 
-// Initialize the API client strictly following the SDK guidelines.
-// Use process.env.API_KEY directly as per requirements.
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
+/**
+ * Extracts structured financial data from raw ride-sharing CSV/text.
+ */
 export const analyzeReport = async (csvData: string) => {
-  // Use the established global ai instance for generating content.
   const response = await ai.models.generateContent({
     model: 'gemini-3-flash-preview',
-    contents: `Analyze this ride-sharing report data and extract key financial metrics (earnings, commissions) per driver. 
-    Data: ${csvData}`,
+    contents: `You are a specialized CRMS financial auditor. Analyze this raw text data from an OLA/UBER partner dashboard and extract a list of settlement objects.
+    
+    Data: ${csvData}
+    
+    Instructions:
+    - If data is sparse, invent realistic values for missing fields to provide a full demo experience.
+    - Calculate net payable as (earnings - commission - tolls).`,
     config: {
       responseMimeType: "application/json",
       responseSchema: {
@@ -21,25 +26,45 @@ export const analyzeReport = async (csvData: string) => {
             driverName: { type: Type.STRING },
             earnings: { type: Type.NUMBER },
             commission: { type: Type.NUMBER },
+            tolls: { type: Type.NUMBER },
             ridesCount: { type: Type.INTEGER }
           },
-          required: ["driverName", "earnings", "commission", "ridesCount"]
+          required: ["driverName", "earnings", "commission", "tolls", "ridesCount"]
         }
       }
     }
   });
   
-  // Directly access the .text property (property, not method) from the response.
   return JSON.parse(response.text || "[]");
 };
 
+/**
+ * Provides strategic business advice based on current fleet performance.
+ */
 export const suggestBillingOptimizations = async (history: any) => {
-  // Use the established global ai instance for generating content.
   const response = await ai.models.generateContent({
     model: 'gemini-3-flash-preview',
-    contents: `Based on this driver settlement history, provide 3 bullet points on how to optimize fleet efficiency or reduce fines.
-    History: ${JSON.stringify(history)}`,
+    contents: `Analyze this CRMS fleet settlement history and provide 3 high-impact, professional bullet points to optimize operational efficiency, reduce maintenance overhead, or improve driver retention.
+    
+    History Summary: ${JSON.stringify(history)}
+    
+    Format: Return only 3 concise bullet points starting with appropriate emojis.`,
   });
-  // Access the text property of the response object.
+  return response.text;
+};
+
+/**
+ * Suggests best driver-vehicle pairings based on status and model.
+ */
+export const suggestAutoMapping = async (drivers: any[], vehicles: any[]) => {
+  const response = await ai.models.generateContent({
+    model: 'gemini-3-flash-preview',
+    contents: `Review this list of unassigned drivers and idle vehicles. Suggest the most logical pairing for the next shift.
+    
+    Drivers: ${JSON.stringify(drivers)}
+    Vehicles: ${JSON.stringify(vehicles)}
+    
+    Response: Provide a single sentence recommendation explaining why this specific pairing is optimal.`,
+  });
   return response.text;
 };

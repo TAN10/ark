@@ -1,5 +1,6 @@
 {
   "name": "ArkFlow - Car Rental Management System",
-  "description": "A comprehensive car rental management platform designed for Ark Shipping to automate driver onboarding, car assignment, income tracking from OLA/UBER, and settlement of fines and tolls.",
-  "requestFramePermissions": []
+  "description": "A comprehensive car rental management platform designed for Ark Shipping to automate driver onboarding, car assignment, income tracking from OLA/UBER, and settlement of fines and tolls. Integrated with Vercel Postgres and Google Gemini AI.",
+  "requestFramePermissions": [],
+  "database": "PostgreSQL"
 }
