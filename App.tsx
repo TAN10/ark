@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo, useEffect } from 'react';
 import { 
   Users, 
@@ -13,7 +14,8 @@ import {
   Sun,
   Moon,
   CloudLightning,
-  ShieldCheck
+  ShieldCheck,
+  Database
 } from 'lucide-react';
 import { Driver, RentalModel, DriverStatus, SettlementRecord, Vehicle, User } from './types';
 import { cloudService } from './services/cloudService';
@@ -28,10 +30,11 @@ import Login from './components/Login';
 import UserProfile from './components/UserProfile';
 import SettingsView from './components/SettingsView';
 import NotificationsView from './components/NotificationsView';
+import DataViewer from './components/DataViewer';
 
 const SESSION_KEY = 'arkflow_v3_session';
 const THEME_KEY = 'arkflow_theme';
-const APP_VERSION = 'v3.2.2 PRO';
+const APP_VERSION = 'v3.2.3 PRO';
 
 const App: React.FC = () => {
   const [user, setUser] = useState<User | null>(() => {
@@ -119,7 +122,7 @@ const App: React.FC = () => {
           <Activity size={48} className="animate-pulse text-cyan-500" />
           <div className="absolute inset-0 animate-ping opacity-20 bg-cyan-500 rounded-full scale-150"></div>
         </div>
-        <p className="text-[10px] font-black uppercase tracking-[0.4em]">Initializing v3.2.2 Environment...</p>
+        <p className="text-[10px] font-black uppercase tracking-[0.4em]">Establishing Secure Node Connection...</p>
       </div>
     );
 
@@ -131,6 +134,7 @@ const App: React.FC = () => {
       case 'mapping': return <DriverVehicleMapping drivers={drivers} vehicles={vehicles} setDrivers={setDrivers} />;
       case 'billing': return <BillingInvoice drivers={drivers} settlements={settlements} setSettlements={setSettlements} />;
       case 'reports': return <Reports drivers={drivers} settlements={settlements} vehicles={vehicles} />;
+      case 'data_audit': return <DataViewer drivers={drivers} vehicles={vehicles} settlements={settlements} />;
       case 'profile': return <UserProfile user={user} onUpdate={(u) => setUser({...user, ...u})} />;
       case 'settings': return <SettingsView isDarkMode={isDarkMode} toggleTheme={toggleTheme} tableStatus={{drivers: drivers.length > 0, vehicles: vehicles.length > 0, settlements: settlements.length > 0}} />;
       case 'notifications': return <NotificationsView vehicles={vehicles} settlements={settlements} />;
@@ -164,6 +168,9 @@ const App: React.FC = () => {
           <SectionTitle>Finance</SectionTitle>
           <NavItem active={activeTab === 'billing'} onClick={() => setActiveTab('billing')} icon={<CreditCard size={18}/>} label="Billing" />
           <NavItem active={activeTab === 'reports'} onClick={() => setActiveTab('reports')} icon={<BarChart3 size={18}/>} label="Analytics" />
+
+          <SectionTitle>System</SectionTitle>
+          <NavItem active={activeTab === 'data_audit'} onClick={() => setActiveTab('data_audit')} icon={<Database size={18}/>} label="Data Audit" />
         </nav>
 
         <div className="p-6 border-t border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-slate-900/20">
