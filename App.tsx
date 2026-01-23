@@ -10,7 +10,6 @@ import {
   Link as LinkIcon,
   UserCheck,
   CreditCard,
-  Bell,
   Settings as SettingsIcon,
   Sun,
   Moon,
@@ -125,7 +124,7 @@ const App: React.FC = () => {
     if (isLoading) return (
       <div className="flex flex-col items-center justify-center h-[60vh] gap-6 text-slate-400">
         <Activity size={48} className="animate-pulse text-cyan-500" />
-        <p className="text-[10px] font-black uppercase tracking-[0.4em]">Establishing Cloud Node...</p>
+        <p className="text-[10px] font-black uppercase tracking-[0.4em]">Establishing Vercel Node...</p>
       </div>
     );
 
@@ -148,12 +147,12 @@ const App: React.FC = () => {
     <div className="flex h-screen bg-slate-50 dark:bg-[#020617] overflow-hidden text-slate-900 dark:text-slate-100 font-sans selection:bg-cyan-500/30">
       <aside className="w-72 bg-white dark:bg-slate-950 border-r border-slate-200 dark:border-white/5 flex flex-col shrink-0">
         <div className="p-8 flex items-center gap-4">
-          <div className="bg-cyan-600 p-2.5 rounded-xl shadow-[0_0_20px_rgba(8,145,178,0.3)]">
+          <div className="bg-indigo-600 p-2.5 rounded-xl shadow-[0_0_20px_rgba(79,70,229,0.3)]">
             <CloudLightning className="w-5 h-5 text-white" />
           </div>
           <div>
             <h1 className="text-lg font-black tracking-tighter leading-none italic uppercase text-slate-900 dark:text-white">ARKFLOW</h1>
-            <p className="text-[8px] font-bold text-slate-500 uppercase tracking-[0.2em] mt-1.5">Supabase Edition</p>
+            <p className="text-[8px] font-bold text-slate-500 uppercase tracking-[0.2em] mt-1.5">Vercel Postgres</p>
           </div>
         </div>
 
@@ -175,9 +174,9 @@ const App: React.FC = () => {
         <div className="p-6 border-t border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-slate-900/20">
           <button 
             onClick={() => setActiveTab('profile')}
-            className={`flex items-center gap-4 mb-4 w-full text-left p-2 rounded-xl transition-all ${activeTab === 'profile' ? 'bg-cyan-600/10 border border-cyan-500/20' : 'hover:bg-slate-200 dark:hover:bg-white/5'}`}
+            className={`flex items-center gap-4 mb-4 w-full text-left p-2 rounded-xl transition-all ${activeTab === 'profile' ? 'bg-indigo-600/10 border border-indigo-500/20' : 'hover:bg-slate-200 dark:hover:bg-white/5'}`}
           >
-            <div className="w-10 h-10 rounded-lg bg-slate-200 dark:bg-slate-800 flex items-center justify-center text-cyan-600 dark:text-cyan-400 font-black border border-slate-300 dark:border-white/5">
+            <div className="w-10 h-10 rounded-lg bg-slate-200 dark:bg-slate-800 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-black border border-slate-300 dark:border-white/5">
               {user.firstName.charAt(0)}
             </div>
             <div className="overflow-hidden">
@@ -199,13 +198,13 @@ const App: React.FC = () => {
           <h2 className="text-sm font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.2em]">{activeTab.replace(/([A-Z])/g, ' $1').trim()}</h2>
           <div className="flex items-center gap-4">
             <div className="hidden md:flex items-center gap-4 text-[10px] font-black uppercase tracking-widest text-slate-400">
-               <span className="flex items-center gap-1.5"><div className="w-1.5 h-1.5 rounded-full bg-cyan-500 shadow-[0_0_8px_rgba(6,182,212,0.5)]"></div> Cloud Ready</span>
+               <span className="flex items-center gap-1.5"><div className="w-1.5 h-1.5 rounded-full bg-indigo-500 shadow-[0_0_8px_rgba(79,70,229,0.5)]"></div> Vercel Ready</span>
             </div>
             <div className="flex items-center gap-2 border-l border-slate-200 dark:border-white/10 ml-4 pl-4">
-              <button onClick={toggleTheme} className="p-2 text-slate-500 hover:text-cyan-600 rounded-lg transition-all">
+              <button onClick={toggleTheme} className="p-2 text-slate-500 hover:text-indigo-600 rounded-lg transition-all">
                 {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
               </button>
-              <button onClick={() => setActiveTab('settings')} className="p-2 text-slate-500 hover:text-cyan-600 rounded-lg transition-all">
+              <button onClick={() => setActiveTab('settings')} className="p-2 text-slate-500 hover:text-indigo-600 rounded-lg transition-all">
                 <SettingsIcon size={18} />
               </button>
             </div>
@@ -226,7 +225,7 @@ const SectionTitle = ({children}: {children?: React.ReactNode}) => (
 const NavItem = ({ active, onClick, icon, label }: { active: boolean, onClick: () => void, icon: React.ReactNode, label: string }) => (
   <button
     onClick={onClick}
-    className={`w-full flex items-center gap-3.5 px-5 py-3 rounded-xl transition-all group ${active ? 'bg-cyan-600 text-white shadow-xl shadow-cyan-600/20' : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-white/5 hover:text-slate-900'}`}
+    className={`w-full flex items-center gap-3.5 px-5 py-3 rounded-xl transition-all group ${active ? 'bg-indigo-600 text-white shadow-xl shadow-indigo-600/20' : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-white/5 hover:text-slate-900'}`}
   >
     <span className={`${active ? 'text-white' : 'text-slate-400 group-hover:text-slate-600'}`}>{icon}</span>
     <span className="text-[11px] font-black uppercase tracking-widest">{label}</span>
