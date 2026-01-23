@@ -34,7 +34,7 @@ import DataViewer from './components/DataViewer';
 
 const SESSION_KEY = 'arkflow_v3_session';
 const THEME_KEY = 'arkflow_theme';
-const APP_VERSION = 'v3.2.3 PRO';
+const APP_VERSION = 'v3.3.0 PRO - MEGA SEED';
 
 const App: React.FC = () => {
   const [user, setUser] = useState<User | null>(() => {
@@ -122,7 +122,7 @@ const App: React.FC = () => {
           <Activity size={48} className="animate-pulse text-cyan-500" />
           <div className="absolute inset-0 animate-ping opacity-20 bg-cyan-500 rounded-full scale-150"></div>
         </div>
-        <p className="text-[10px] font-black uppercase tracking-[0.4em]">Establishing Secure Node Connection...</p>
+        <p className="text-[10px] font-black uppercase tracking-[0.4em]">Scaling Data Node (Mega Seed Active)...</p>
       </div>
     );
 
