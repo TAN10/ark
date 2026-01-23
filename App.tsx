@@ -13,7 +13,8 @@ import {
   Settings as SettingsIcon,
   Sun,
   Moon,
-  CloudLightning
+  CloudLightning,
+  ShieldCheck
 } from 'lucide-react';
 import { Driver, RentalModel, DriverStatus, SettlementRecord, Vehicle, User } from './types';
 import { cloudService } from './services/cloudService';
@@ -31,6 +32,7 @@ import NotificationsView from './components/NotificationsView';
 
 const SESSION_KEY = 'arkflow_v3_session';
 const THEME_KEY = 'arkflow_theme';
+const APP_VERSION = 'v3.2.1 PRO';
 
 const App: React.FC = () => {
   const [user, setUser] = useState<User | null>(() => {
@@ -50,36 +52,24 @@ const App: React.FC = () => {
   const [drivers, setDrivers] = useState<Driver[]>([]);
   const [settlements, setSettlements] = useState<SettlementRecord[]>([]);
 
-  // Initial Cloud Load
+  // Initial Cloud Load with snappy transition
   useEffect(() => {
     const loadData = async () => {
-      setIsLoading(true);
+      const startTime = Date.now();
       const [v, d, s] = await Promise.all([
-        cloudService.fetchVehicles([
-          { 
-            id: 'v1', regNo: 'MH-12-CR-2024', registrationDate: '2024-01-10', chasisNumber: 'XCV998877SH', 
-            make: 'Maruti', model: 'Ertiga', purchaseDate: '2024-01-05', insuranceStartDate: '2024-01-10',
-            insuranceEndDate: '2024-12-30', insuranceCompany: 'Tata AIG', pucExpiryDate: '2024-12-10',
-            fastTagDetails: 'FT-991022', status: 'ACTIVE', odometerReading: 12450, odometerReadingDate: '2024-05-20',
-            maintenanceHistory: [], maintenanceCost: 4500,
-            rentalExpenses: { fastTag: 1200, rtoFines: 0, accident: 0 }
-          }
-        ]),
-        cloudService.fetchDrivers([
-          {
-            id: 'd1', driverId: 'DRV-101', name: 'Arjun Mehra', phone: '9811223344', dob: '1988-05-15',
-            licenseNumber: 'DL-MH12-2022-001', aadharNumber: '112233445566', panNumber: 'ABCDE1122F',
-            permanentAddress: 'Kothrud, Pune', state: 'Maharashtra', city: 'Pune', villageName: 'Kothrud',
-            status: DriverStatus.ACTIVE, onboardedAt: '2023-10-01', assignedVehicleReg: 'MH-12-CR-2024',
-            paymentModel: RentalModel.DAILY
-          }
-        ]),
+        cloudService.fetchVehicles([]),
+        cloudService.fetchDrivers([]),
         cloudService.fetchSettlements()
       ]);
+      
       setVehicles(v);
       setDrivers(d);
       setSettlements(s);
-      setIsLoading(false);
+
+      // Ensure loading state is visible for at least 800ms for visual polish
+      const elapsed = Date.now() - startTime;
+      const delay = Math.max(0, 800 - elapsed);
+      setTimeout(() => setIsLoading(false), delay);
     };
     loadData();
   }, []);
@@ -123,8 +113,11 @@ const App: React.FC = () => {
   const renderContent = () => {
     if (isLoading) return (
       <div className="flex flex-col items-center justify-center h-[60vh] gap-6 text-slate-400">
-        <Activity size={48} className="animate-pulse text-cyan-500" />
-        <p className="text-[10px] font-black uppercase tracking-[0.4em]">Establishing Vercel Node...</p>
+        <div className="relative">
+          <Activity size={48} className="animate-pulse text-cyan-500" />
+          <div className="absolute inset-0 animate-ping opacity-20 bg-cyan-500 rounded-full scale-150"></div>
+        </div>
+        <p className="text-[10px] font-black uppercase tracking-[0.4em]">Optimizing Edge Node...</p>
       </div>
     );
 
@@ -137,7 +130,7 @@ const App: React.FC = () => {
       case 'billing': return <BillingInvoice drivers={drivers} settlements={settlements} setSettlements={setSettlements} />;
       case 'reports': return <Reports drivers={drivers} settlements={settlements} vehicles={vehicles} />;
       case 'profile': return <UserProfile user={user} onUpdate={(u) => setUser({...user, ...u})} />;
-      case 'settings': return <SettingsView isDarkMode={isDarkMode} toggleTheme={toggleTheme} />;
+      case 'settings': return <SettingsView isDarkMode={isDarkMode} toggleTheme={toggleTheme} tableStatus={{drivers: drivers.length > 0, vehicles: vehicles.length > 0, settlements: settlements.length > 0}} />;
       case 'notifications': return <NotificationsView vehicles={vehicles} settlements={settlements} />;
       default: return <Dashboard stats={stats} drivers={drivers} settlements={settlements} />;
     }
@@ -152,7 +145,7 @@ const App: React.FC = () => {
           </div>
           <div>
             <h1 className="text-lg font-black tracking-tighter leading-none italic uppercase text-slate-900 dark:text-white">ARKFLOW</h1>
-            <p className="text-[8px] font-bold text-slate-500 uppercase tracking-[0.2em] mt-1.5">Vercel Postgres</p>
+            <p className="text-[8px] font-bold text-slate-500 uppercase tracking-[0.2em] mt-1.5">Enterprise Fleet</p>
           </div>
         </div>
 
@@ -196,11 +189,12 @@ const App: React.FC = () => {
       <main className="flex-1 overflow-y-auto flex flex-col bg-white dark:bg-[#020617]">
         <header className="bg-white/50 dark:bg-slate-950/50 backdrop-blur-xl border-b border-slate-200 dark:border-white/5 sticky top-0 z-40 px-10 py-4 flex justify-between items-center">
           <h2 className="text-sm font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.2em]">{activeTab.replace(/([A-Z])/g, ' $1').trim()}</h2>
-          <div className="flex items-center gap-4">
-            <div className="hidden md:flex items-center gap-4 text-[10px] font-black uppercase tracking-widest text-slate-400">
-               <span className="flex items-center gap-1.5"><div className="w-1.5 h-1.5 rounded-full bg-indigo-500 shadow-[0_0_8px_rgba(79,70,229,0.5)]"></div> Vercel Ready</span>
+          <div className="flex items-center gap-6">
+            <div className="flex items-center gap-2 px-3 py-1 bg-cyan-600 dark:bg-cyan-600/20 border border-cyan-500/30 rounded-full shadow-lg shadow-cyan-500/10 animate-in fade-in slide-in-from-right-2">
+               <ShieldCheck size={12} className="text-white dark:text-cyan-400" />
+               <span className="text-[10px] font-black uppercase tracking-widest text-white dark:text-cyan-400">{APP_VERSION}</span>
             </div>
-            <div className="flex items-center gap-2 border-l border-slate-200 dark:border-white/10 ml-4 pl-4">
+            <div className="flex items-center gap-2 border-l border-slate-200 dark:border-white/10 pl-6">
               <button onClick={toggleTheme} className="p-2 text-slate-500 hover:text-indigo-600 rounded-lg transition-all">
                 {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
               </button>

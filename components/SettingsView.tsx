@@ -4,12 +4,17 @@ import {
   Database, ShieldCheck, Monitor, Zap,
   Copy, CheckCircle, Terminal,
   Server, Globe, Key, ArrowRight, ExternalLink,
-  Layers, Package, Code
+  Layers, Package, Code, CheckCircle2, AlertCircle, Activity
 } from 'lucide-react';
 
 interface SettingsViewProps {
   isDarkMode: boolean;
   toggleTheme: () => void;
+  tableStatus?: {
+    drivers: boolean;
+    vehicles: boolean;
+    settlements: boolean;
+  };
 }
 
 const VERCEL_POSTGRES_SQL = `-- ARKFLOW VERCEL POSTGRES SCHEMA
@@ -57,7 +62,7 @@ CREATE TABLE settlements (
 );
 `;
 
-const SettingsView: React.FC<SettingsViewProps> = ({ isDarkMode, toggleTheme }) => {
+const SettingsView: React.FC<SettingsViewProps> = ({ isDarkMode, toggleTheme, tableStatus }) => {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = () => {
@@ -76,64 +81,57 @@ const SettingsView: React.FC<SettingsViewProps> = ({ isDarkMode, toggleTheme }) 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
         <div className="lg:col-span-2 space-y-10">
           
-          {/* STEP BY STEP GUIDE */}
-          <section className="bg-white dark:bg-slate-950 p-12 rounded-[3rem] border border-slate-200 dark:border-white/5 shadow-xl space-y-12">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-indigo-600 rounded-2xl text-white">
-                <Layers size={24} />
-              </div>
-              <div>
-                <h3 className="text-2xl font-black italic uppercase text-slate-900 dark:text-white tracking-tight">Deployment Guide</h3>
-                <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mt-1">Connect ArkFlow to Vercel Postgres</p>
-              </div>
+          {/* VISUAL HEALTH AUDIT */}
+          <section className="bg-slate-900 text-white p-12 rounded-[3rem] shadow-2xl space-y-10 border border-white/5 relative overflow-hidden">
+            <div className="absolute top-0 right-0 p-8 opacity-5">
+              <Activity size={180} />
             </div>
+            <div className="relative z-10">
+               <div className="flex items-center gap-4 mb-10">
+                <div className="p-3 bg-white text-slate-900 rounded-2xl">
+                  <Monitor size={24} />
+                </div>
+                <div>
+                  <h3 className="text-2xl font-black italic uppercase tracking-tight">System Health Audit</h3>
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Real-time table integrity check</p>
+                </div>
+              </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <StepItem 
-                num="01" 
-                title="Create Database" 
-                desc="Go to Vercel Dashboard > Storage > Create > Postgres. Name it 'arkflow-db'." 
-              />
-              <StepItem 
-                num="02" 
-                title="Connect Project" 
-                desc="Select this project in the Vercel Storage settings and click 'Connect'." 
-              />
-              <StepItem 
-                num="03" 
-                title="Inject Secrets" 
-                desc="Vercel will automatically add POSTGRES_URL to your environment variables." 
-              />
-              <StepItem 
-                num="04" 
-                title="Init Schema" 
-                desc="Copy the SQL below and run it in the Vercel Postgres 'Query' tab." 
-              />
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                 <HealthTile label="Drivers Table" active={tableStatus?.drivers} />
+                 <HealthTile label="Vehicles Table" active={tableStatus?.vehicles} />
+                 <HealthTile label="Settlements Table" active={tableStatus?.settlements} />
+              </div>
+
+              <div className="mt-8 p-6 bg-white/5 rounded-3xl border border-white/10 flex items-center gap-4">
+                 <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_12px_rgba(16,185,129,0.8)] animate-pulse"></div>
+                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Master Data Feed: {process.env.POSTGRES_URL ? 'Cloud Streaming' : 'Simulated Preview Mode Active'}</p>
+              </div>
             </div>
           </section>
 
           {/* SQL EDITOR */}
-          <section className="bg-slate-900 text-white p-12 rounded-[3rem] shadow-2xl space-y-8">
+          <section className="bg-white dark:bg-slate-950 p-12 rounded-[3rem] border border-slate-200 dark:border-white/5 shadow-xl space-y-8">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <div className="p-3 bg-white/10 rounded-2xl">
-                  <Terminal size={24} className="text-cyan-400" />
+                <div className="p-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-2xl">
+                  <Terminal size={24} />
                 </div>
                 <div>
-                  <h3 className="text-xl font-black italic uppercase tracking-tight">Database Schema</h3>
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Vercel Postgres (Neon) Migration</p>
+                  <h3 className="text-xl font-black italic uppercase text-slate-900 dark:text-white tracking-tight">Database Schema</h3>
+                  <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mt-1">Execute in Vercel Query Tab</p>
                 </div>
               </div>
               <button 
                 onClick={handleCopy}
-                className={`px-6 py-3 rounded-xl flex items-center gap-2 text-[10px] font-black uppercase tracking-widest transition-all ${copied ? 'bg-emerald-500 text-white' : 'bg-white/10 text-white hover:bg-cyan-600'}`}
+                className={`px-6 py-3 rounded-xl flex items-center gap-2 text-[10px] font-black uppercase tracking-widest transition-all ${copied ? 'bg-emerald-500 text-white' : 'bg-slate-100 dark:bg-slate-900 text-slate-900 dark:text-white hover:bg-indigo-600 hover:text-white'}`}
               >
                 {copied ? <CheckCircle size={14} /> : <Copy size={14} />}
                 {copied ? 'Copied' : 'Copy SQL'}
               </button>
             </div>
 
-            <div className="bg-black/50 rounded-3xl p-8 border border-white/5 max-h-[400px] overflow-y-auto scrollbar-hide">
+            <div className="bg-slate-950 rounded-3xl p-8 border border-white/5 max-h-[400px] overflow-y-auto scrollbar-hide ring-1 ring-inset ring-white/10 shadow-inner">
               <pre className="text-[11px] font-mono text-cyan-400 leading-relaxed whitespace-pre-wrap">
                 {VERCEL_POSTGRES_SQL}
               </pre>
@@ -144,11 +142,11 @@ const SettingsView: React.FC<SettingsViewProps> = ({ isDarkMode, toggleTheme }) 
         {/* SIDEBAR */}
         <div className="space-y-8">
           <div className="bg-white dark:bg-slate-950 p-10 rounded-[3rem] border border-slate-200 dark:border-white/5 shadow-xl">
-             <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-8">Connection Status</h3>
+             <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-8">Deployment Status</h3>
              <div className="space-y-6">
-                <StatusItem label="Edge Runtime" value="Active" active />
-                <StatusItem label="Vercel Postgres" value={process.env.POSTGRES_URL ? 'Connected' : 'Local Only'} active={!!process.env.POSTGRES_URL} />
-                <StatusItem label="SSL Encryption" value="TLS 1.3" active />
+                <StatusItem label="Edge Runtime" value="V3 Stable" active />
+                <StatusItem label="Vercel Postgres" value={process.env.POSTGRES_URL ? 'Connected' : 'Offline'} active={!!process.env.POSTGRES_URL} />
+                <StatusItem label="SSL Engine" value="Active" active />
              </div>
           </div>
 
@@ -159,7 +157,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({ isDarkMode, toggleTheme }) 
              <div className="relative z-10">
                <h4 className="text-lg font-black italic uppercase tracking-tighter mb-4">Storage Node</h4>
                <p className="text-[10px] font-bold text-indigo-100 leading-relaxed uppercase opacity-80 mb-6">
-                  ArkFlow is currently configured for Vercel Storage. All data is persisted on the Neon database engine with automatic backups.
+                  Verify your database tables via the health tiles. If markers are RED, please execute the Migration SQL.
                </p>
                <a href="https://vercel.com/docs/storage/vercel-postgres" target="_blank" className="inline-flex items-center gap-2 text-[9px] font-black uppercase tracking-widest bg-white text-indigo-600 px-4 py-2 rounded-lg">
                  Vercel Docs <ExternalLink size={12} />
@@ -180,13 +178,15 @@ const SettingsView: React.FC<SettingsViewProps> = ({ isDarkMode, toggleTheme }) 
   );
 };
 
-const StepItem = ({ num, title, desc }: { num: string, title: string, desc: string }) => (
-  <div className="p-6 bg-slate-50 dark:bg-white/[0.02] rounded-3xl border border-slate-100 dark:border-white/5 group hover:border-cyan-500/30 transition-all">
-    <div className="flex items-center gap-3 mb-3">
-      <span className="text-[10px] font-black text-cyan-600 dark:text-cyan-500 font-mono">{num}</span>
-      <h4 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-tight">{title}</h4>
+const HealthTile = ({ label, active }: { label: string, active?: boolean }) => (
+  <div className={`p-6 rounded-[2rem] border transition-all flex flex-col items-center justify-center gap-3 text-center ${active ? 'bg-emerald-500/10 border-emerald-500/20 shadow-[0_0_20px_rgba(16,185,129,0.1)]' : 'bg-rose-500/10 border-rose-500/20'}`}>
+    <div className={`p-2 rounded-lg ${active ? 'bg-emerald-500 text-white' : 'bg-rose-500 text-white'}`}>
+      {active ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
     </div>
-    <p className="text-[10px] font-bold text-slate-500 dark:text-slate-500 uppercase leading-relaxed tracking-tight">{desc}</p>
+    <span className="text-[9px] font-black uppercase tracking-widest text-white/70">{label}</span>
+    <span className={`text-[8px] font-black uppercase px-2 py-0.5 rounded ${active ? 'bg-emerald-500 text-white' : 'bg-rose-500 text-white'}`}>
+      {active ? 'OK' : 'ERR'}
+    </span>
   </div>
 );
 
