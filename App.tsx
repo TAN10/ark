@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo, useEffect } from 'react';
 import { 
   Users, 
@@ -32,7 +31,7 @@ import NotificationsView from './components/NotificationsView';
 
 const SESSION_KEY = 'arkflow_v3_session';
 const THEME_KEY = 'arkflow_theme';
-const APP_VERSION = 'v3.2.1 PRO';
+const APP_VERSION = 'v3.2.2 PRO';
 
 const App: React.FC = () => {
   const [user, setUser] = useState<User | null>(() => {
@@ -56,20 +55,23 @@ const App: React.FC = () => {
   useEffect(() => {
     const loadData = async () => {
       const startTime = Date.now();
-      const [v, d, s] = await Promise.all([
-        cloudService.fetchVehicles([]),
-        cloudService.fetchDrivers([]),
-        cloudService.fetchSettlements()
-      ]);
-      
-      setVehicles(v);
-      setDrivers(d);
-      setSettlements(s);
-
-      // Ensure loading state is visible for at least 800ms for visual polish
-      const elapsed = Date.now() - startTime;
-      const delay = Math.max(0, 800 - elapsed);
-      setTimeout(() => setIsLoading(false), delay);
+      try {
+        const [v, d, s] = await Promise.all([
+          cloudService.fetchVehicles([]),
+          cloudService.fetchDrivers([]),
+          cloudService.fetchSettlements()
+        ]);
+        
+        setVehicles(v);
+        setDrivers(d);
+        setSettlements(s);
+      } catch (e) {
+        console.error("Load failed", e);
+      } finally {
+        const elapsed = Date.now() - startTime;
+        const delay = Math.max(0, 500 - elapsed);
+        setTimeout(() => setIsLoading(false), delay);
+      }
     };
     loadData();
   }, []);
@@ -117,7 +119,7 @@ const App: React.FC = () => {
           <Activity size={48} className="animate-pulse text-cyan-500" />
           <div className="absolute inset-0 animate-ping opacity-20 bg-cyan-500 rounded-full scale-150"></div>
         </div>
-        <p className="text-[10px] font-black uppercase tracking-[0.4em]">Optimizing Edge Node...</p>
+        <p className="text-[10px] font-black uppercase tracking-[0.4em]">Initializing v3.2.2 Environment...</p>
       </div>
     );
 

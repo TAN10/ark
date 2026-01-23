@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
 import { Driver, SettlementRecord, Vehicle } from '../types';
@@ -74,7 +73,7 @@ const Reports: React.FC<ReportsProps> = ({ drivers, settlements, vehicles }) => 
                     <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 10, fontWeight: 900}} />
                     <YAxis axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 10, fontWeight: 900}} />
                     <Tooltip 
-                       contentStyle={{backgroundColor: 'currentColor', borderRadius: '16px', border: 'none', padding: '12px'}}
+                       contentStyle={{backgroundColor: '#0f172a', borderRadius: '16px', border: 'none', padding: '12px'}}
                        itemStyle={{fontWeight: 900, color: '#06b6d4', fontSize: '10px'}}
                     />
                     <Bar dataKey="earnings" fill="#0891b2" radius={[12, 12, 0, 0]} barSize={40} />
@@ -165,7 +164,6 @@ const Reports: React.FC<ReportsProps> = ({ drivers, settlements, vehicles }) => 
                     {n: 'W1', v: 4000}, {n: 'W2', v: 3000}, {n: 'W3', v: 5500}, {n: 'W4', v: 4800}
                   ]}>
                     <Line type="monotone" dataKey="v" stroke="#0891b2" strokeWidth={3} dot={false} />
-                    <Tooltip hide />
                   </LineChart>
                 </ResponsiveContainer>
              </div>
